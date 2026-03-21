@@ -5,6 +5,9 @@ import dotenv from "dotenv";
 
 
 import authRoutes from './routes/authRoutes.js';
+import doctorRoutes from './routes/doctorRoutes.js';
+import appointmentRoutes from './routes/appointmentRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 import {connectDB} from './db/connect.js';
 
@@ -15,11 +18,14 @@ const PORT = 8000;
 
 
 app.use(morgan("dev"));
-app.use(cors());
+app.use(cors("*"));
 app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.send('Backend is running!');
