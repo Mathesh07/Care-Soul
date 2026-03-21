@@ -1,18 +1,102 @@
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "./button"
 import { CareSOULLogo } from "./care-soul-logo"
 import { NotificationCenter } from "./notification-center"
 import { useTheme } from "../theme-provider"
+import { useAuth } from "../../contexts/AuthContext"
+import { authService } from "../../services/authService"
+import { LogOut, User, Settings } from "lucide-react"
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
+  const { user, isAuthenticated, logout } = useAuth()
+  const navigate = useNavigate()
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleSignOut = () => {
+    logout()
+    navigate('/login')
+  }
+
+  const getAuthButtons = () => {
+    if (isAuthenticated && user) {
+      return (
+        <>
+          {/* User Menu */}
+          <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-secondary/50">
+              <User className="w-4 h-4 text-foreground/70" />
+              <span className="text-sm font-medium text-foreground">{user.name}</span>
+            </div>
+            
+            <Button variant="ghost" size="sm" className="gap-2">
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Profile</span>
+            </Button>
+            
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50">
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </Button>
+          </div>
+        </>
+      )
+    } else {
+      return (
+        <>
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/login">Sign In</Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link to="/register">Get Started</Link>
+          </Button>
+        </>
+      )
+    }
+  }
+
+  const getMobileAuthButtons = () => {
+    if (isAuthenticated && user) {
+      return (
+        <>
+          <div className="flex items-center gap-2 px-4 py-2 border-t border-border mt-4">
+            <div className="flex items-center gap-2 flex-1">
+              <User className="w-4 h-4 text-foreground/70" />
+              <span className="text-sm font-medium text-foreground">{user.name}</span>
+            </div>
+          </div>
+          
+          <div className="flex gap-2 px-4 pb-4">
+            <Button variant="ghost" size="sm" className="flex-1 gap-2">
+              <Settings className="w-4 h-4" />
+              Profile
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex-1 gap-2 text-red-600 hover:text-red-700 hover:bg-red-50">
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          </div>
+        </>
+      )
+    } else {
+      return (
+        <div className="flex gap-2 mt-4 px-4">
+          <Button variant="ghost" size="sm" className="flex-1" asChild>
+            <Link to="/login">Sign In</Link>
+          </Button>
+          <Button size="sm" className="flex-1" asChild>
+            <Link to="/register">Get Started</Link>
+          </Button>
+        </div>
+      )
+    }
+  }
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border/60 backdrop-blur-md bg-surface/95 shadow-sm">
@@ -29,22 +113,42 @@ export function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-7">
-            {[
-              { href: "/", label: "Home" },
-              { href: "/patient", label: "Patient Portal" },
-              { href: "/doctor", label: "Doctor Portal" },
-              { href: "/admin", label: "Admin" },
-              { href: "/demo", label: "Demo" },
-            ].map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className="text-text-secondary hover:text-foreground transition-all duration-300 ease-out text-sm font-medium relative group py-1"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-primary to-primary-light group-hover:w-full transition-all duration-300 ease-out rounded-full" />
-              </Link>
-            ))}
+            {isAuthenticated ? (
+              // Authenticated user navigation
+              [
+                { href: "/", label: "Home" },
+                { href: "/dashboard", label: "Dashboard" },
+                { href: "/doctors", label: "Find Doctors" },
+                { href: "/my-appointments", label: "My Appointments" },
+              ].map((link) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-text-secondary hover:text-foreground transition-all duration-300 ease-out text-sm font-medium relative group py-1"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-primary to-primary-light group-hover:w-full transition-all duration-300 ease-out rounded-full" />
+                </Link>
+              ))
+            ) : (
+              // Public navigation
+              [
+                { href: "/", label: "Home" },
+                { href: "/patient", label: "Patient Portal" },
+                { href: "/doctor", label: "Doctor Portal" },
+                { href: "/admin", label: "Admin" },
+                { href: "/demo", label: "Demo" },
+              ].map((link) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-text-secondary hover:text-foreground transition-all duration-300 ease-out text-sm font-medium relative group py-1"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-primary to-primary-light group-hover:w-full transition-all duration-300 ease-out rounded-full" />
+                </Link>
+              ))
+            )}
           </div>
 
           <div className="hidden md:flex items-center gap-2">
@@ -84,12 +188,9 @@ export function Navbar() {
                 </svg>
               )}
             </button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/login">Sign In</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link to="/register">Get Started</Link>
-            </Button>
+            
+            {/* Dynamic Auth Buttons */}
+            {getAuthButtons()}
           </div>
 
           {/* Mobile Menu Button */}
@@ -148,30 +249,45 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden pb-4 border-t border-border animate-slide-up">
             <div className="flex flex-col gap-2 pt-4">
-              {[
-                { href: "/", label: "Home" },
-                { href: "/patient", label: "Patient Portal" },
-                { href: "/doctor", label: "Doctor Portal" },
-                { href: "/admin", label: "Admin" },
-                { href: "/demo", label: "🎨 Demo" },
-              ].map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className="px-4 py-2 text-text-secondary hover:text-foreground hover:bg-surface-secondary rounded-lg transition-all duration-200 text-sm"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="flex gap-2 mt-4 px-4">
-                <Button variant="ghost" size="sm" className="flex-1" asChild>
-                  <Link to="/login">Sign In</Link>
-                </Button>
-                <Button size="sm" className="flex-1" asChild>
-                  <Link to="/register">Get Started</Link>
-                </Button>
-              </div>
+              {isAuthenticated ? (
+                // Authenticated user navigation
+                [
+                  { href: "/", label: "Home" },
+                  { href: "/dashboard", label: "Dashboard" },
+                  { href: "/doctors", label: "Find Doctors" },
+                  { href: "/my-appointments", label: "My Appointments" },
+                ].map((link) => (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className="px-4 py-2 text-text-secondary hover:text-foreground hover:bg-surface-secondary rounded-lg transition-all duration-200 text-sm"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ))
+              ) : (
+                // Public navigation
+                [
+                  { href: "/", label: "Home" },
+                  { href: "/patient", label: "Patient Portal" },
+                  { href: "/doctor", label: "Doctor Portal" },
+                  { href: "/admin", label: "Admin" },
+                  { href: "/demo", label: "🎨 Demo" },
+                ].map((link) => (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className="px-4 py-2 text-text-secondary hover:text-foreground hover:bg-surface-secondary rounded-lg transition-all duration-200 text-sm"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ))
+              )}
+              
+              {/* Dynamic Mobile Auth Buttons */}
+              {getMobileAuthButtons()}
             </div>
           </div>
         )}

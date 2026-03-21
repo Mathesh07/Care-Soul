@@ -5,7 +5,6 @@ export function AvailabilityCalendar() {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
   const timeSlots = ["Morning", "Afternoon", "Evening"]
   
-  // Sample availability data
   const availability = {
     Mon: { Morning: true, Afternoon: true, Evening: false },
     Tue: { Morning: true, Afternoon: false, Evening: true },
