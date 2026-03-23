@@ -40,16 +40,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = () => {
-      const storedToken = authService.getToken();
-      const storedUser = authService.getUser();
-
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(storedUser);
+    const initAuth = async () => {
+      try {
+        setLoading(true);
+        
+        const storedToken = authService.getToken();
+        const storedUser = authService.getUser();
+        
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(storedUser);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        // Clear any corrupted data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     initAuth();

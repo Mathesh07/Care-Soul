@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Calendar, Clock, User, MapPin, Stethoscope, ArrowLeft } from 'lucide-react';
-import { doctorService } from '../services/doctorService';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Calendar, Clock, User, MapPin, Star, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 import { appointmentService } from '../services/appointmentService';
+import { doctorService } from '../services/doctorService';
+import { Navbar } from '../components/ui/navbar';
 
 interface Doctor {
   _id: string;
