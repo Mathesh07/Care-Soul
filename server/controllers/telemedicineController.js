@@ -4,6 +4,13 @@ import TelemedicineSession from '../models/TelemedicineSession.js';
 
 export const createSession = async (req, res) => {
     try {
+        if (req.user?.role === 'user') {
+            return res.status(403).json({
+                success: false,
+                message: 'Patients are not allowed to create video rooms',
+            });
+        }
+
         const { appointmentId } = req.body;
 
         const appointment =
@@ -11,7 +18,7 @@ export const createSession = async (req, res) => {
 
         if (!appointment) {
             return res.status(404).json({
-                sucecss: false,
+                success: false,
                 message: "Appointment not found",
             });
         }
@@ -44,7 +51,7 @@ export const createSession = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({
-            sucecss: false,
+            success: false,
             message: error.message,
         });
     }

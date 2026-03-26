@@ -4,7 +4,7 @@ import { useRole } from "../role-provider"
 import { USER_ROLE } from "../../lib/types"
 
 export function RoleSwitcher() {
-  const { switchRole, currentRole } = useRole()
+  const { setCurrentRole, currentRole } = useRole()
 
   const roles = [
     { id: USER_ROLE.PATIENT, label: "Patient", icon: "👤", description: "Book appointments, view records" },
@@ -21,7 +21,7 @@ export function RoleSwitcher() {
               key={role.id}
               variant={currentRole === role.id ? "default" : "outline"}
               size="sm"
-              onClick={() => switchRole(role.id)}
+              onClick={() => setCurrentRole(role.id)}
               className="flex items-center gap-2"
             >
               <span>{role.icon}</span>

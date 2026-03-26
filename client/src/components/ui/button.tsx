@@ -5,20 +5,20 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "../../lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive active:scale-[0.97]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-invalid:ring-destructive/20 aria-invalid:border-destructive active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-md hover:shadow-lg active:shadow-sm",
+          "bg-gradient-to-b from-blue-nav to-blue-nav-dark text-white hover:from-blue-nav-light hover:to-blue-nav active:from-blue-nav-dark active:to-blue-nav shadow-navy-md hover:shadow-navy-lg active:shadow-navy-sm border border-blue-nav-light/20",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 active:bg-destructive/80 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 shadow-md hover:shadow-lg active:shadow-sm",
+          "bg-gradient-to-b from-status-danger to-red-700 text-white hover:from-red-600 hover:to-red-800 active:from-red-800 shadow-navy-md hover:shadow-navy-lg active:shadow-navy-sm border border-status-danger/30",
         outline:
-          "border border-border/60 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-border hover:shadow dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border-2 border-primary/40 bg-transparent hover:bg-primary/5 hover:border-primary/60 text-primary font-medium",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70 shadow-md hover:shadow-lg active:shadow-sm",
-        ghost: "hover:bg-accent/80 hover:text-accent-foreground dark:hover:bg-accent/50 active:bg-accent",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-gradient-to-b from-blue-accent to-blue-accent-dark text-white hover:from-blue-accent-light hover:to-blue-accent active:from-blue-accent-dark shadow-navy-md hover:shadow-navy-lg active:shadow-navy-sm border border-blue-accent/30",
+        ghost: "hover:bg-primary/10 hover:text-primary text-foreground/80 font-medium active:bg-primary/15",
+        link: "text-primary underline-offset-4 hover:underline font-semibold",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

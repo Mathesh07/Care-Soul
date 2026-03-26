@@ -3,83 +3,175 @@
 @tailwind utilities;
 
 :root {
-  /* ... existing color variables ... */
-  --background: oklch(0.98 0 0);
-  --foreground: oklch(0.15 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.35 0.08 260);
-  --primary-foreground: oklch(0.98 0 0);
-  --primary-light: oklch(0.45 0.06 250);
-  --primary-dark: oklch(0.28 0.09 270);
-  --secondary: oklch(0.65 0.08 200);
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.92 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.58 0.15 25);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.92 0 0);
-  --input: oklch(0.96 0 0);
-  --ring: oklch(0.35 0.08 260);
+  /* Care Soul Theme - Light */
+  /* Using raw HSL values for Tailwind compatibility */
+  --background: 204 33% 98%;
+  --background-color: #ffffff;
+  --secondary-background-color: #f3f8fb;
+  --foreground: 222.2 84% 4.9%;
+  --text-color: #0f172a;
+  
+  /* Panel Colors */
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  
+  /* Brand Colors */
+  --primary: 196 78% 42%; /* #0e7490 */
+  --primary-foreground: 210 40% 98%;
+  --primary-light: #22d3ee;
+  --primary-dark: #155e75;
+  --theme-glow-1: rgba(34, 211, 238, 0.2);
+  --theme-glow-2: rgba(14, 116, 144, 0.16);
+  
+  /* Secondary */
+  --secondary: 176 35% 92%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  
+  /* Status Colors */
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 170 70% 92%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  
+  /* Status Semantic Colors */
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  
+  /* Borders & Input */
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 196 78% 42%;
   --radius: 0.5rem;
-  --surface: oklch(0.98 0 0);
-  --surface-secondary: oklch(0.94 0 0);
-  --text-secondary: oklch(0.5 0 0);
-  --border-light: oklch(0.95 0 0);
-  --chart-1: oklch(0.35 0.08 260);
-  --chart-2: oklch(0.65 0.08 200);
-  --chart-3: oklch(0.58 0.15 25);
-  --chart-4: oklch(0.45 0.06 250);
-  --chart-5: oklch(0.5 0.07 190);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  
+  /* Surfaces */
+  --surface: #ffffff;
+  --surface-secondary: #f8fafc;
+  --text-secondary: #64748b;
+  --border-light: #e2e8f0;
+  
+  /* Charts */
+  --chart-1: 196 78% 42%;
+  --chart-2: 188 81% 58%;
+  --chart-3: 142 71% 45%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 0 84.2% 60.2%;
+  
+  /* Sidebar */
+  --sidebar: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #0e7490;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e2e8f0;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #0e7490;
+  
+  /* Hero & Sections */
+  --pa-bg: #f8fafc;
+  --pa-panel: #ffffff;
+  --pa-panel-alt: #f1f5f9;
+  --pa-text: #0f172a;
+  --pa-muted: #64748b;
+  --pa-line: #e2e8f0;
+  --pa-brand: #0e7490;
+  --pa-brand-2: #06b6d4;
+  --pa-brand-dark: #155e75;
+  --pa-success: #16a34a;
+  --pa-warning: #f59e0b;
+  --pa-danger: #ef4444;
+  --pa-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  --pa-sidebar: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  --pa-hero: linear-gradient(145deg, #ffffff 0%, #ecfeff 100%);
 }
 
-/* Dark theme with proper high contrast colors */
 .dark {
-  --background: oklch(0.13 0 0);
-  --foreground: oklch(0.96 0 0);
-  --card: oklch(0.18 0 0);
-  --card-foreground: oklch(0.96 0 0);
-  --popover: oklch(0.18 0 0);
-  --popover-foreground: oklch(0.96 0 0);
-  --primary: oklch(0.65 0.08 200);
-  --primary-foreground: oklch(0.13 0 0);
-  --primary-light: oklch(0.75 0.06 200);
-  --primary-dark: oklch(0.45 0.09 220);
-  --secondary: oklch(0.45 0.06 250);
-  --secondary-foreground: oklch(0.96 0 0);
-  --muted: oklch(0.35 0 0);
-  --muted-foreground: oklch(0.68 0 0);
-  --accent: oklch(0.65 0.12 25);
-  --accent-foreground: oklch(0.13 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.96 0 0);
-  --border: oklch(0.28 0 0);
-  --input: oklch(0.23 0 0);
-  --ring: oklch(0.65 0.08 200);
-  --surface: oklch(0.18 0 0);
-  --surface-secondary: oklch(0.23 0 0);
-  --text-secondary: oklch(0.68 0 0);
-  --border-light: oklch(0.35 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* Care Soul Theme - Dark */
+  --background: 207 44% 10%;
+  --background-color: #020817;
+  --secondary-background-color: #0b2131;
+  --foreground: 210 40% 98%;
+  --text-color: #f8fafc;
+  
+  /* Panel Colors */
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  
+  /* Brand Colors */
+  --primary: 190 90% 56%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --primary-light: #67e8f9;
+  --primary-dark: #0891b2;
+  --theme-glow-1: rgba(34, 211, 238, 0.24);
+  --theme-glow-2: rgba(8, 145, 178, 0.2);
+  
+  /* Secondary */
+  --secondary: 197 40% 18%;
+  --secondary-foreground: 210 40% 98%;
+  
+  /* Status Colors */
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 186 40% 18%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  
+  /* Status Semantic Colors */
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  
+  /* Borders & Input */
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 190 90% 56%;
+  
+  /* Surfaces */
+  --surface: #0f172a;
+  --surface-secondary: #020817;
+  --text-secondary: #94a3b8;
+  --border-light: #1e293b;
+  
+  /* Charts */
+  --chart-1: 190 90% 56%;
+  --chart-2: 188 81% 58%;
+  --chart-3: 142 71% 45%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 0 62.8% 30.6%;
+  
+  /* Sidebar */
+  --sidebar: linear-gradient(180deg, #020817 0%, #0f172a 100%);
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #06b6d4;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #06b6d4;
+
+  /* Hero & Sections */
+  --pa-bg: #020817;
+  --pa-panel: #0f172a;
+  --pa-panel-alt: #1e293b;
+  --pa-text: #f8fafc;
+  --pa-muted: #94a3b8;
+  --pa-line: #1e293b;
+  --pa-brand: #06b6d4;
+  --pa-brand-2: #0891b2;
+  --pa-brand-dark: #155e75;
+  --pa-success: #16a34a;
+  --pa-warning: #f59e0b;
+  --pa-danger: #ef4444;
+  --pa-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --pa-sidebar: linear-gradient(180deg, #020817 0%, #0f172a 100%);
+  --pa-hero: linear-gradient(145deg, #082032 0%, #0b2131 100%);
 }
 
 @layer base {
@@ -88,6 +180,9 @@
   }
   body {
     @apply bg-background text-foreground transition-colors duration-300;
+    background-image:
+      radial-gradient(circle at 0% 0%, var(--theme-glow-1), transparent 38%),
+      radial-gradient(circle at 100% 100%, var(--theme-glow-2), transparent 38%);
   }
   html {
     scroll-behavior: smooth;
@@ -96,6 +191,44 @@
 
 /* Added smooth micro-interactions and animations */
 @layer components {
+  /* Premium shadow effects */
+  .shadow-premium-sm {
+    @apply shadow-sm;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-premium-md {
+    @apply shadow-md;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-premium-lg {
+    @apply shadow-lg;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-premium-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Gradient backgrounds for visual depth */
+  .bg-gradient-primary {
+    @apply bg-gradient-to-br from-primary via-primary-light to-accent;
+  }
+
+  .bg-gradient-secondary {
+    @apply bg-gradient-to-br from-secondary to-primary-light;
+  }
+
+  .bg-gradient-card {
+    @apply bg-gradient-to-br from-card to-card/90;
+  }
+
+  /* Enhanced focus states */
+  .focus-ring {
+    @apply outline-none ring-2 ring-primary/20 ring-offset-2 ring-offset-background;
+  }
+
   /* Smooth transitions for interactive elements */
   button,
   a[role="button"],
@@ -109,6 +242,113 @@
   button:not(:disabled):hover {
     @apply -translate-y-0.5;
   }
+
+  /* Input focus styles */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply ring-2 ring-primary/30 ring-offset-2 ring-offset-background border-primary;
+  }
+
+  /* Link hover effects */
+  a:not([role="button"]) {
+    @apply transition-colors duration-200 ease-out;
+  }
+
+  /* Animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.4s ease-out;
+  }
+
+  .animate-slide-down {
+    animation: slide-down 0.4s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Scroll smooth */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full hover:bg-border/80;
+  }
+
+  /* Selection styles */
+  ::selection {
+    @apply bg-primary/20 text-foreground;
+  }
+
+  ::-moz-selection {
+    @apply bg-primary/20 text-foreground;
+  }
+
 
   /* Card entrance animation */
   @keyframes slideUp {
@@ -394,3 +634,4 @@
     animation-delay: 2s;
   }
 }
+

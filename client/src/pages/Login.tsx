@@ -43,7 +43,7 @@ export default function Login() {
     }
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-card to-accent/20 flex items-center justify-center p-4 text-foreground">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
@@ -52,7 +52,7 @@ export default function Login() {
       </div>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto">
-        <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden">
+        <div className="bg-card/85 backdrop-blur-lg rounded-3xl shadow-2xl border border-border/60 overflow-hidden">
           <div className="flex flex-col lg:flex-row">
             {/* Left Side - Login Form */}
             <div className="w-full lg:w-1/2 p-8 lg:p-12">
@@ -63,16 +63,16 @@ export default function Login() {
                     <Heart className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">CareSoul</h1>
-                    <p className="text-sm text-gray-600">Your Health, Our Priority</p>
+                    <h1 className="text-2xl font-bold text-foreground">CareSoul</h1>
+                    <p className="text-sm text-foreground/70">Your Health, Our Priority</p>
                   </div>
                 </div>
               </div>
 
               {/* Welcome Message */}
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-                <p className="text-gray-600">Sign in to access your healthcare dashboard</p>
+                <h2 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h2>
+                <p className="text-foreground/70">Sign in to access your healthcare dashboard</p>
               </div>
 
               {/* Error Message */}
@@ -88,7 +88,7 @@ export default function Login() {
               {/* Login Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 flex items-center">
+                  <label className="text-sm font-medium text-foreground/80 flex items-center">
                     <Mail className="w-4 h-4 mr-2" />
                     Email Address
                   </label>
@@ -97,16 +97,16 @@ export default function Login() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                      className="w-full px-4 py-3 pl-12 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all duration-200 bg-background/80 backdrop-blur-sm"
                       placeholder="Enter your email"
                       required
                     />
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-foreground/40" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 flex items-center">
+                  <label className="text-sm font-medium text-foreground/80 flex items-center">
                     <Lock className="w-4 h-4 mr-2" />
                     Password
                   </label>
@@ -115,15 +115,15 @@ export default function Login() {
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 pl-12 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                      className="w-full px-4 py-3 pl-12 pr-12 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all duration-200 bg-background/80 backdrop-blur-sm"
                       placeholder="Enter your password"
                       required
                     />
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-foreground/40" />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-foreground/40 hover:text-foreground/70 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -132,10 +132,10 @@ export default function Login() {
 
                 <div className="flex items-center justify-between">
                   <label className="flex items-center">
-                    <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                    <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                    <input type="checkbox" className="w-4 h-4 text-primary border-border rounded focus:ring-primary/40" />
+                    <span className="ml-2 text-sm text-foreground/70">Remember me</span>
                   </label>
-                  <a href="#" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
+                  <a href="#" className="text-sm text-primary hover:text-primary/80 transition-colors">
                     Forgot password?
                   </a>
                 </div>
@@ -161,11 +161,11 @@ export default function Login() {
 
               {/* Sign Up Link */}
               <div className="mt-8 text-center">
-                <p className="text-gray-600">
+                <p className="text-foreground/70">
                   Don't have an account?{" "}
                   <Link 
                     to="/register" 
-                    className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                    className="text-primary hover:text-primary/80 font-medium transition-colors"
                   >
                     Sign up now
                   </Link>

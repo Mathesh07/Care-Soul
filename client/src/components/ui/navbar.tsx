@@ -34,12 +34,6 @@ export function Navbar() {
               <User className="w-4 h-4 text-foreground/70" />
               <span className="text-sm font-medium text-foreground">{user.name}</span>
             </div>
-            
-            <Button variant="ghost" size="sm" className="gap-2">
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Profile</span>
-            </Button>
-            
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50">
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Sign Out</span>
@@ -99,14 +93,14 @@ export function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border/60 backdrop-blur-md bg-white shadow-sm">
+    <nav className="sticky top-0 z-50 border-b border-white/[0.08] backdrop-blur-xl bg-card/50 shadow-navy-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center text-primary group-hover:text-primary-dark transition-all duration-300 ease-out transform group-hover:scale-105 group-hover:shadow-md">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center text-blue-nav group-hover:text-blue-nav-light transition-all duration-300 ease-out transform group-hover:scale-105 group-hover:shadow-glow-blue">
               <CareSOULLogo />
             </div>
-            <span className="font-semibold text-foreground text-lg hidden sm:inline group-hover:text-primary transition-all duration-300 ease-out">
+            <span className="font-bold text-foreground text-lg hidden sm:inline group-hover:text-blue-nav transition-all duration-300 ease-out">
               CARE SOUL
             </span>
           </Link>
@@ -124,10 +118,10 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   to={link.href}
-                  className="text-text-secondary hover:text-foreground transition-all duration-300 ease-out text-sm font-medium relative group py-1"
+                  className="text-foreground/70 hover:text-blue-nav transition-all duration-300 ease-out text-sm font-medium relative group py-1"
                 >
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-primary to-primary-light group-hover:w-full transition-all duration-300 ease-out rounded-full" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-nav to-blue-accent group-hover:w-full transition-all duration-300 ease-out rounded-full" />
                 </Link>
               ))
             ) : (
@@ -142,10 +136,10 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   to={link.href}
-                  className="text-text-secondary hover:text-foreground transition-all duration-300 ease-out text-sm font-medium relative group py-1"
+                  className="text-foreground/70 hover:text-blue-nav transition-all duration-300 ease-out text-sm font-medium relative group py-1"
                 >
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-primary to-primary-light group-hover:w-full transition-all duration-300 ease-out rounded-full" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-nav to-blue-accent group-hover:w-full transition-all duration-300 ease-out rounded-full" />
                 </Link>
               ))
             )}
@@ -155,7 +149,7 @@ export function Navbar() {
             <NotificationCenter />
             <button
               onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="p-2.5 rounded-lg hover:bg-surface-secondary/80 active:bg-surface-secondary transition-all duration-300 ease-out text-foreground hover:shadow-sm active:scale-95"
+              className="p-2.5 rounded-lg hover:bg-white/10 active:bg-white/[0.15] transition-all duration-300 ease-out text-foreground hover:shadow-sm active:scale-95"
               aria-label="Toggle theme"
               title={mounted ? `Switch to ${theme === "light" ? "dark" : "light"} mode` : "Toggle theme"}
             >

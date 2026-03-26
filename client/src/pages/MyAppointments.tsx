@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, User, MapPin, Star, ArrowRight, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, MapPin, X, CheckCircle, AlertCircle, Loader, Video } from 'lucide-react';
 import { appointmentService } from '../services/appointmentService';
 import { Navbar } from '../components/ui/navbar';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 
 interface Doctor {
   _id: string;
@@ -75,13 +77,13 @@ const MyAppointments = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Booked':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-primary/10 text-primary border border-primary/20';
       case 'Cancelled':
-        return 'bg-red-100 text-red-700';
+        return 'bg-destructive/10 text-destructive border border-destructive/20';
       case 'Completed':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-500/10 text-green-600 border border-green-500/20';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-foreground/5 text-foreground/70 border border-border/50';
     }
   };
 
@@ -101,141 +103,231 @@ const MyAppointments = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
-      weekday: 'long',
+      weekday: 'short',
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
     });
   };
 
+  const upcomingAppointments = appointments.filter(apt => 
+    apt.status === 'Booked' && new Date(apt.date) >= new Date()
+  );
+  
+  const pastAppointments = appointments.filter(apt => 
+    apt.status !== 'Booked' || new Date(apt.date) < new Date()
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading appointments...</p>
+          <div className="inline-flex p-4 bg-primary/10 rounded-full mb-4">
+            <Loader className="h-8 w-8 text-primary animate-spin" />
+          </div>
+          <p className="text-foreground/70 font-medium">Loading appointments...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navbar />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Appointments</h1>
-          <button
-            onClick={() => navigate('/doctors')}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-          >
-            Book New Appointment
-          </button>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex justify-between items-center mb-10">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground">My Appointments</h1>
+            <p className="text-foreground/60 mt-2">Manage and track all your healthcare appointments</p>
+          </div>
+          <Button onClick={() => navigate('/doctors')} size="lg" className="gap-2">
+            <Calendar className="h-4 w-4" />
+            Book New
+          </Button>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {error}
+          <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-xl mb-8 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">{error}</div>
+            <button onClick={() => setError('')} className="text-destructive hover:text-destructive/80 font-bold">×</button>
           </div>
         )}
 
         {appointments.length === 0 ? (
-          <div className="text-center py-12">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No appointments found</h3>
-            <p className="text-gray-600 mb-6">You haven't booked any appointments yet</p>
-            <button
-              onClick={() => navigate('/doctors')}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-            >
-              Find a Doctor
-            </button>
-          </div>
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="p-4 bg-accent/10 rounded-full mb-4">
+                <Calendar className="h-8 w-8 text-foreground/40" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">No appointments found</h3>
+              <p className="text-foreground/60 mb-6">You haven't booked any appointments yet</p>
+              <Button onClick={() => navigate('/doctors')}>Find a Doctor</Button>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {appointments.map((appointment) => (
-              <div key={appointment._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
-                <div className="p-6">
-                  {/* Status Badge */}
-                  <div className="flex justify-between items-start mb-4">
-                    <div className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(appointment.status)}`}>
-                      {getStatusIcon(appointment.status)}
-                      <span className="ml-1">{appointment.status}</span>
-                    </div>
-                  </div>
-
-                  {/* Doctor Information */}
-                  <div className="mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {appointment.doctorId.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm">{appointment.doctorId.specialization}</p>
-                    <div className="flex items-center text-gray-600 text-sm mt-2">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {appointment.doctorId.location}
-                    </div>
-                  </div>
-
-                  {/* Appointment Details */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-gray-700">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      <span className="text-sm">{formatDate(appointment.date)}</span>
-                    </div>
-                    <div className="flex items-center text-gray-700">
-                      <Clock className="h-4 w-4 mr-2" />
-                      <span className="text-sm">{appointment.time}</span>
-                    </div>
-                  </div>
-
-                  {/* Notes */}
-                  {appointment.notes && (
-                    <div className="mb-4">
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Notes:</span> {appointment.notes}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="pt-4 border-t border-gray-200">
-                    {appointment.status === 'Booked' && (
-                      <button
-                        onClick={() => handleCancelAppointment(appointment._id)}
-                        disabled={cancellingId === appointment._id}
-                        className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {cancellingId === appointment._id ? 'Cancelling...' : 'Cancel Appointment'}
-                      </button>
-                    )}
-                    
-                    {appointment.status === 'Cancelled' && (
-                      <button
-                        onClick={() => navigate(`/book-appointment/${appointment.doctorId._id}`)}
-                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 font-medium"
-                      >
-                        Book Again
-                      </button>
-                    )}
-                    
-                    {appointment.status === 'Completed' && (
-                      <button
-                        onClick={() => navigate(`/book-appointment/${appointment.doctorId._id}`)}
-                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 font-medium"
-                      >
-                        Book Another Appointment
-                      </button>
-                    )}
-                  </div>
+          <div className="space-y-8">
+            {/* Upcoming Appointments */}
+            {upcomingAppointments.length > 0 && (
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-1 w-8 bg-primary rounded-full"/>
+                  <h2 className="text-2xl font-bold text-foreground">Upcoming</h2>
+                  <span className="text-sm font-semibold px-3 py-1 bg-primary/10 text-primary rounded-full">
+                    {upcomingAppointments.length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {upcomingAppointments.map((appointment) => (
+                    <AppointmentCard 
+                      key={appointment._id}
+                      appointment={appointment}
+                      onCancel={handleCancelAppointment}
+                      onBook={() => navigate(`/book-appointment/${appointment.doctorId._id}`)}
+                      onJoinCall={() => navigate(`/consultation/${appointment._id}`)}
+                      isCancelling={cancellingId === appointment._id}
+                      getStatusColor={getStatusColor}
+                      getStatusIcon={getStatusIcon}
+                      formatDate={formatDate}
+                    />
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Past Appointments */}
+            {pastAppointments.length > 0 && (
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-1 w-8 bg-foreground/30 rounded-full"/>
+                  <h2 className="text-2xl font-bold text-foreground">Past</h2>
+                  <span className="text-sm font-semibold px-3 py-1 bg-foreground/5 text-foreground/70 rounded-full">
+                    {pastAppointments.length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pastAppointments.map((appointment) => (
+                    <AppointmentCard 
+                      key={appointment._id}
+                      appointment={appointment}
+                      onCancel={handleCancelAppointment}
+                      onBook={() => navigate(`/book-appointment/${appointment.doctorId._id}`)}
+                      onJoinCall={() => navigate(`/consultation/${appointment._id}`)}
+                      isCancelling={cancellingId === appointment._id}
+                      getStatusColor={getStatusColor}
+                      getStatusIcon={getStatusIcon}
+                      formatDate={formatDate}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
     </div>
   );
 };
+
+function AppointmentCard({
+  appointment,
+  onCancel,
+  onBook,
+  onJoinCall,
+  isCancelling,
+  getStatusColor,
+  getStatusIcon,
+  formatDate
+}: {
+  appointment: Appointment;
+  onCancel: (id: string) => void;
+  onBook: () => void;
+  onJoinCall: () => void;
+  isCancelling: boolean;
+  getStatusColor: (status: string) => string;
+  getStatusIcon: (status: string) => React.ReactNode;
+  formatDate: (date: string) => string;
+}) {
+  return (
+    <Card className="flex flex-col overflow-hidden">
+      <CardContent className="p-6 flex-1 flex flex-col">
+        <div className="mb-4">
+          <div className={`flex items-center w-fit gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold ${getStatusColor(appointment.status)}`}>
+            {getStatusIcon(appointment.status)}
+            <span>{appointment.status}</span>
+          </div>
+        </div>
+
+        <div className="flex-1 mb-4">
+          <h3 className="text-lg font-bold text-foreground mb-1">
+            {appointment.doctorId.name}
+          </h3>
+          <p className="text-sm text-foreground/60 font-medium mb-3">{appointment.doctorId.specialization}</p>
+          
+          <div className="flex items-center gap-2 text-sm text-foreground/70 mb-2">
+            <MapPin className="h-4 w-4 flex-shrink-0 text-primary/60" />
+            {appointment.doctorId.location}
+          </div>
+        </div>
+
+        <div className="space-y-2 mb-4 py-4 border-t border-border/50">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Calendar className="h-4 w-4 text-primary" />
+            </div>
+            <span className="text-sm font-medium text-foreground">{formatDate(appointment.date)}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-accent/10 rounded-lg">
+              <Clock className="h-4 w-4 text-accent" />
+            </div>
+            <span className="text-sm font-medium text-foreground">{appointment.time}</span>
+          </div>
+        </div>
+
+        {appointment.notes && (
+          <div className="mb-4 p-3 bg-foreground/5 rounded-lg">
+            <p className="text-xs text-foreground/60 font-semibold uppercase mb-1">Notes</p>
+            <p className="text-sm text-foreground/70">{appointment.notes}</p>
+          </div>
+        )}
+      </CardContent>
+
+      <div className="border-t border-border/50 p-4 space-y-2">
+        {appointment.status === 'Booked' && (
+          <>
+            <Button
+              onClick={onJoinCall}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
+            >
+              <Video className="h-4 w-4" />
+              Join Video Call
+            </Button>
+            <Button
+              onClick={() => onCancel(appointment._id)}
+              disabled={isCancelling}
+              variant="destructive"
+              className="w-full"
+            >
+              {isCancelling ? (
+                <>
+                  <Loader className="h-4 w-4 animate-spin" />
+                  Cancelling...
+                </>
+              ) : 'Cancel Appointment'}
+            </Button>
+          </>
+        )}
+        
+        {(appointment.status === 'Cancelled' || appointment.status === 'Completed') && (
+          <Button onClick={onBook} className="w-full">
+            {appointment.status === 'Cancelled' ? 'Book Again' : 'Book Another'}
+          </Button>
+        )}
+      </div>
+    </Card>
+  );
+}
 
 export default MyAppointments;

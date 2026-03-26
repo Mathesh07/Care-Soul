@@ -137,8 +137,8 @@ export default function PatientPortal() {
                     <p className="text-muted-foreground">Get immediate medical assistance</p>
                   </div>
 
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p className="text-sm text-red-700">
+                  <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+                    <p className="text-sm text-destructive">
                       If you're experiencing a life-threatening emergency, please call emergency services immediately or
                       visit the nearest hospital.
                     </p>

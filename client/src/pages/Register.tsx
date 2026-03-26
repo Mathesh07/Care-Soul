@@ -44,12 +44,17 @@ export default function Register() {
       
       const response = await authService.signup({ name, email, password })
       
+      // Store pending registration data for OTP verification
+      localStorage.setItem('pendingEmail', email)
+      localStorage.setItem('pendingName', name)
+      localStorage.setItem('pendingPassword', password)
+      
       // For signup, the backend sends OTP verification email
       if (response.message) {
         setSuccess("Registration successful! Please check your email for OTP verification.")
         setTimeout(() => {
-          navigate("/login") // Redirect to login after OTP verification
-        }, 3000)
+          navigate("/verify-otp", { state: { email } })
+        }, 1500)
       } else {
         setError(response.message || "Registration failed")
       }
@@ -67,7 +72,7 @@ export default function Register() {
     return { strength: 3, text: "Strong", color: "text-green-500" }
   }
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-background text-foreground flex">
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8 lg:p-16">
         <div className="w-full max-w-md">
@@ -75,7 +80,7 @@ export default function Register() {
           <div className="mb-8">
             <Link 
               to="/login" 
-              className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 transition-colors"
+              className="inline-flex items-center text-sm text-foreground/70 hover:text-foreground transition-colors"
             >
               <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
               Back to sign in
@@ -89,8 +94,8 @@ export default function Register() {
                 <Heart className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
-                <p className="text-slate-600">Get started with CareSoul today</p>
+                <h1 className="text-2xl font-bold text-foreground">Create your account</h1>
+                <p className="text-foreground/70">Get started with CareSoul today</p>
               </div>
             </div>
           </div>
@@ -122,7 +127,7 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name Field */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
+              <label htmlFor="name" className="block text-sm font-medium text-foreground/80 mb-2">
                 Full name
               </label>
               <div className="relative">
@@ -133,23 +138,23 @@ export default function Register() {
                   onChange={(e) => setName(e.target.value)}
                   onFocus={() => setFocusedField('name')}
                   onBlur={() => setFocusedField('')}
-                  className={`w-full px-4 py-3 pl-11 border rounded-xl transition-all duration-200 bg-white ${
+                  className={`w-full px-4 py-3 pl-11 border rounded-xl transition-all duration-200 bg-background ${
                     focusedField === 'name' 
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
-                      : 'border-slate-200 hover:border-slate-300'
+                      : 'border-border hover:border-border/80'
                   }`}
                   placeholder="John Doe"
                   required
                 />
                 <User className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                  focusedField === 'name' ? 'text-emerald-500' : 'text-slate-400'
+                  focusedField === 'name' ? 'text-emerald-500' : 'text-foreground/40'
                 }`} />
               </div>
             </div>
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground/80 mb-2">
                 Email address
               </label>
               <div className="relative">
@@ -160,23 +165,23 @@ export default function Register() {
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => setFocusedField('email')}
                   onBlur={() => setFocusedField('')}
-                  className={`w-full px-4 py-3 pl-11 border rounded-xl transition-all duration-200 bg-white ${
+                  className={`w-full px-4 py-3 pl-11 border rounded-xl transition-all duration-200 bg-background ${
                     focusedField === 'email' 
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
-                      : 'border-slate-200 hover:border-slate-300'
+                      : 'border-border hover:border-border/80'
                   }`}
                   placeholder="john@example.com"
                   required
                 />
                 <Mail className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                  focusedField === 'email' ? 'text-emerald-500' : 'text-slate-400'
+                  focusedField === 'email' ? 'text-emerald-500' : 'text-foreground/40'
                 }`} />
               </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground/80 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -187,22 +192,22 @@ export default function Register() {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setFocusedField('password')}
                   onBlur={() => setFocusedField('')}
-                  className={`w-full px-4 py-3 pl-11 pr-11 border rounded-xl transition-all duration-200 bg-white ${
+                  className={`w-full px-4 py-3 pl-11 pr-11 border rounded-xl transition-all duration-200 bg-background ${
                     focusedField === 'password' 
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
-                      : 'border-slate-200 hover:border-slate-300'
+                      : 'border-border hover:border-border/80'
                   }`}
                   placeholder="Create a strong password"
                   required
                   minLength={6}
                 />
                 <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                  focusedField === 'password' ? 'text-emerald-500' : 'text-slate-400'
+                  focusedField === 'password' ? 'text-emerald-500' : 'text-foreground/40'
                 }`} />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-foreground/40 hover:text-foreground/70 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -224,7 +229,7 @@ export default function Register() {
                               : getPasswordStrength(password).strength === 2
                               ? 'bg-yellow-500'
                               : 'bg-emerald-500'
-                            : 'bg-slate-200'
+                            : 'bg-border'
                         }`}
                       />
                     ))}
@@ -238,7 +243,7 @@ export default function Register() {
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground/80 mb-2">
                 Confirm password
               </label>
               <div className="relative">
@@ -249,22 +254,22 @@ export default function Register() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   onFocus={() => setFocusedField('confirmPassword')}
                   onBlur={() => setFocusedField('')}
-                  className={`w-full px-4 py-3 pl-11 pr-11 border rounded-xl transition-all duration-200 bg-white ${
+                  className={`w-full px-4 py-3 pl-11 pr-11 border rounded-xl transition-all duration-200 bg-background ${
                     focusedField === 'confirmPassword' 
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
-                      : 'border-slate-200 hover:border-slate-300'
+                      : 'border-border hover:border-border/80'
                   }`}
                   placeholder="Confirm your password"
                   required
                   minLength={6}
                 />
                 <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
-                  focusedField === 'confirmPassword' ? 'text-emerald-500' : 'text-slate-400'
+                  focusedField === 'confirmPassword' ? 'text-emerald-500' : 'text-foreground/40'
                 }`} />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-foreground/40 hover:text-foreground/70 transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -294,9 +299,9 @@ export default function Register() {
                 type="checkbox"
                 id="terms"
                 required
-                className="mt-1 w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                className="mt-1 w-4 h-4 text-emerald-600 border-border rounded focus:ring-emerald-500"
               />
-              <label htmlFor="terms" className="ml-3 text-sm text-slate-600">
+              <label htmlFor="terms" className="ml-3 text-sm text-foreground/70">
                 I agree to the{' '}
                 <a href="#" className="text-emerald-600 hover:text-emerald-700 font-medium">
                   Terms of Service
@@ -312,7 +317,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading || password !== confirmPassword || password.length < 6}
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-400 disabled:to-slate-500 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed shadow-lg flex items-center justify-center"
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-muted disabled:to-muted text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed shadow-lg flex items-center justify-center"
             >
               {loading ? (
                 <>
@@ -330,7 +335,7 @@ export default function Register() {
 
           {/* Sign In Link */}
           <div className="mt-8 text-center">
-            <p className="text-slate-600">
+            <p className="text-foreground/70">
               Already have an account?{' '}
               <Link 
                 to="/login" 

@@ -91,25 +91,25 @@ const NotificationsPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-background text-foreground">
                 <Navbar />
                 <div className="flex items-center justify-center h-64">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background text-foreground">
             <Navbar />
 
             <div className="max-w-3xl mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-3">
-                        <Bell className="h-6 w-6 text-blue-600" />
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <Bell className="h-6 w-6 text-primary" />
+                        <h1 className="text-2xl font-bold text-foreground">
                             Notifications
                             {unreadCount > 0 && (
                                 <span className="ml-2 bg-red-500 text-white text-sm px-2 py-0.5 rounded-full">
@@ -122,7 +122,7 @@ const NotificationsPage = () => {
                     {unreadCount > 0 && (
                         <button
                             onClick={handleMarkAllRead}
-                            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                            className="flex items-center gap-2 text-primary hover:text-primary/80 text-sm font-medium"
                         >
                             <CheckCheck className="h-4 w-4" />
                             Mark all read
@@ -132,8 +132,8 @@ const NotificationsPage = () => {
 
                 {/* Notifications List */}
                 {notifications.length === 0 ? (
-                    <div className="text-center py-16 text-gray-500">
-                        <Bell className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <div className="text-center py-16 text-foreground/60">
+                        <Bell className="h-12 w-12 mx-auto mb-4 text-foreground/30" />
                         <p>No notifications yet</p>
                     </div>
                 ) : (
@@ -141,9 +141,9 @@ const NotificationsPage = () => {
                         {notifications.map((notification) => (
                             <div
                                 key={notification._id}
-                                className={`bg-white rounded-lg p-4 shadow-sm border-l-4 transition-all ${notification.isRead
-                                        ? "border-gray-200 opacity-70"
-                                        : "border-blue-500"
+                                className={`bg-card rounded-lg p-4 shadow-sm border-l-4 border border-border/60 transition-all ${notification.isRead
+                                        ? "border-l-border opacity-70"
+                                        : "border-l-primary"
                                     }`}
                             >
                                 <div className="flex items-start justify-between gap-3">
@@ -152,13 +152,13 @@ const NotificationsPage = () => {
                                             {getTypeIcon(notification.type)}
                                         </span>
                                         <div>
-                                            <h3 className="font-semibold text-gray-900">
+                                            <h3 className="font-semibold text-foreground">
                                                 {notification.title}
                                             </h3>
-                                            <p className="text-gray-600 text-sm mt-1">
+                                            <p className="text-foreground/70 text-sm mt-1">
                                                 {notification.message}
                                             </p>
-                                            <p className="text-gray-400 text-xs mt-2">
+                                            <p className="text-foreground/50 text-xs mt-2">
                                                 {formatTime(notification.createdAt)}
                                             </p>
                                         </div>
@@ -168,7 +168,7 @@ const NotificationsPage = () => {
                                     {!notification.isRead && (
                                         <button
                                             onClick={() => handleMarkRead(notification._id)}
-                                            className="text-blue-600 hover:text-blue-700 flex-shrink-0"
+                                            className="text-primary hover:text-primary/80 flex-shrink-0"
                                             title="Mark as read"
                                         >
                                             <Check className="h-5 w-5" />
