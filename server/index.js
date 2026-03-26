@@ -22,7 +22,7 @@ const PORT = 8000;
 
 
 app.use(morgan("dev"));
-app.use(cors("*"));
+app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] }));
 app.use(express.json());
 
 // Routes

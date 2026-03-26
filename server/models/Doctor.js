@@ -29,6 +29,10 @@ const doctorSchema = new mongoose.Schema({
     default: 0,
     min: 0,
     max: 5
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

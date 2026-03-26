@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Calendar, Clock, Stethoscope, Activity, LogOut, Edit, Home } from 'lucide-react';
+import { Calendar, Stethoscope, Activity, LogOut, Home, TrendingUp, Heart } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/authService';
-import { userService } from '../services/userService';
 import { appointmentService } from '../services/appointmentService';
 import { Navbar } from '../components/ui/navbar';
-import ApiTest from '../components/ApiTest';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 
 interface UserProfile {
   _id: string;
@@ -31,16 +32,11 @@ interface Appointment {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   
-  const [user, setUser] = useState<UserProfile | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: '',
-    phone: ''
-  });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const userData = authService.getUser();
@@ -49,26 +45,10 @@ const Dashboard = () => {
       return;
     }
     
-    fetchUserData();
-    fetchRecentAppointments();
+    fetchAppointments();
   }, []);
 
-  const fetchUserData = async () => {
-    try {
-      const response = await userService.getProfile();
-      if (response.success) {
-        setUser(response.data);
-        setProfileData({
-          name: response.data.name,
-          phone: response.data.phone || ''
-        });
-      }
-    } catch (err) {
-      setError('Error fetching user data');
-    }
-  };
-
-  const fetchRecentAppointments = async () => {
+  const fetchAppointments = async () => {
     try {
       const response = await appointmentService.getMyAppointments();
       if (response.success) {
@@ -79,30 +59,6 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      setError('');
-      const response = await userService.updateProfile(profileData);
-      
-      if (response.success) {
-        setUser(response.data);
-        setEditingProfile(false);
-        authService.setAuthData(authService.getToken()!, response.data);
-      } else {
-        setError('Failed to update profile');
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error updating profile');
-    }
-  };
-
-  const handleLogout = () => {
-    authService.logout();
-    navigate('/login');
   };
 
   const handleSignOut = () => {
@@ -127,241 +83,129 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p className="text-foreground/70">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* API Test Component for Debugging */}
-        <div className="mb-8">
-          <ApiTest />
+      <div className="p-6 md:p-8">
+        <div className="max-w-7xl mx-auto">
+        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-card via-card to-primary/5 p-6 md:p-8 mb-8 shadow-premium-md">
+          <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-accent/20 blur-2xl" />
+          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-primary/80 font-semibold mb-3">Patient Overview</p>
+              <h1 className="text-3xl md:text-4xl font-bold">Welcome back, {user?.name}!</h1>
+              <p className="text-base md:text-lg text-foreground/70 mt-2">Track appointments, health activities, and emergency actions from one place.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button className="gap-2" onClick={() => navigate('/doctors')}>
+                <Calendar className="h-4 w-4" />
+                Book Appointment
+              </Button>
+              <Button variant="outline" className="gap-2" onClick={() => navigate('/emergency')}>
+                <Activity className="h-4 w-4" />
+                Emergency
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <Home className="h-5 w-5 mr-2" />
-              Home
-            </button>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          </div>
-          <button
-            onClick={handleSignOut}
-            className="flex items-center text-gray-600 hover:text-gray-900"
-          >
-            <LogOut className="h-5 w-5 mr-2" />
-            Sign Out
-          </button>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Stats Cards */}
+          <Card className="lg:col-span-1 border-border/60 shadow-premium-sm hover:shadow-premium-md transition-all duration-300">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-foreground/60">Total Appointments</p>
+                  <p className="text-3xl font-bold text-foreground mt-2">{appointments.length}</p>
+                </div>
+                <div className="p-3 bg-primary/10 rounded-xl">
+                  <Calendar className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {error}
-          </div>
-        )}
+          <Card className="lg:col-span-1 border-border/60 shadow-premium-sm hover:shadow-premium-md transition-all duration-300">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-foreground/60">Upcoming</p>
+                  <p className="text-3xl font-bold text-foreground mt-2">{getUpcomingAppointments()}</p>
+                </div>
+                <div className="p-3 bg-accent/20 rounded-xl">
+                  <TrendingUp className="h-6 w-6 text-accent" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="lg:col-span-1 border-border/60 shadow-premium-sm hover:shadow-premium-md transition-all duration-300">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-foreground/60">Member Since</p>
+                  <p className="text-lg font-bold text-foreground mt-2">{new Date(user?.createdAt || '').toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</p>
+                </div>
+                <div className="p-3 bg-secondary/40 rounded-xl">
+                  <Heart className="h-6 w-6 text-secondary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* User Profile Section */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Profile</h2>
-                {!editingProfile && (
-                  <button
-                    onClick={() => setEditingProfile(true)}
-                    className="text-blue-600 hover:text-blue-700"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-
-              {editingProfile ? (
-                <form onSubmit={handleUpdateProfile} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      value={profileData.name}
-                      onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone
-                    </label>
-                    <input
-                      type="tel"
-                      value={profileData.phone}
-                      onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <button
-                      type="submit"
-                      className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingProfile(false);
-                        setProfileData({
-                          name: user?.name || '',
-                          phone: user?.phone || ''
-                        });
-                      }}
-                      className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <User className="h-5 w-5 text-gray-400 mr-3" />
-                    <div>
-                      <p className="font-medium text-gray-900">{user?.name}</p>
-                      <p className="text-sm text-gray-600">{user?.email}</p>
-                    </div>
-                  </div>
-                  
-                  {user?.phone && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Phone:</span> {user.phone}
-                    </div>
-                  )}
-                  
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">Member since:</span> {formatDate(user?.createdAt || '')}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Quick Stats */}
-            <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Stats</h2>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Calendar className="h-5 w-5 text-blue-600 mr-2" />
-                    <span className="text-gray-700">Total Appointments</span>
-                  </div>
-                  <span className="font-semibold text-gray-900">{appointments.length}</span>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Clock className="h-5 w-5 text-green-600 mr-2" />
-                    <span className="text-gray-700">Upcoming</span>
-                  </div>
-                  <span className="font-semibold text-gray-900">{getUpcomingAppointments()}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content */}
+          {/* Recent Appointments Section */}
           <div className="lg:col-span-2">
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
-                  onClick={() => navigate('/doctors')}
-                  className="flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-200"
-                >
-                  <Stethoscope className="h-5 w-5 mr-2" />
-                  Find Doctors
-                </button>
-                
-                <button
-                  onClick={() => navigate('/my-appointments')}
-                  className="flex items-center justify-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-200"
-                >
-                  <Calendar className="h-5 w-5 mr-2" />
-                  My Appointments
-                </button>
-              </div>
-            </div>
-
-            {/* Recent Appointments */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">Recent Appointments</h2>
-                <button
-                  onClick={() => navigate('/my-appointments')}
-                  className="text-blue-600 hover:text-blue-700 text-sm"
-                >
-                  View All
-                </button>
-              </div>
-
-              {appointments.length === 0 ? (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No appointments yet</h3>
-                  <p className="text-gray-600 mb-4">Book your first appointment to get started</p>
-                  <button
-                    onClick={() => navigate('/doctors')}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-                  >
-                    Find a Doctor
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {appointments.map((appointment) => (
-                    <div key={appointment._id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-medium text-gray-900">{appointment.doctorId.name}</h4>
-                          <p className="text-sm text-gray-600">{appointment.doctorId.specialization}</p>
-                          <div className="flex items-center text-sm text-gray-500 mt-2">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            {formatDate(appointment.date)}
-                            <Clock className="h-4 w-4 ml-3 mr-1" />
-                            {appointment.time}
+            <Card className="border-border/60 shadow-premium-sm">
+              <CardHeader>
+                <CardTitle>Recent Appointments</CardTitle>
+                <CardDescription>Your last 3 appointments</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {appointments.length > 0 ? (
+                  <ul className="space-y-4">
+                    {appointments.map(apt => (
+                      <li key={apt._id} className="flex items-center justify-between p-4 bg-foreground/5 hover:bg-foreground/10 rounded-xl transition-colors duration-200">
+                        <div className="flex items-center gap-4">
+                          <div className="p-2 bg-primary/10 rounded-xl">
+                            <Stethoscope className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-foreground">Dr. {apt.doctorId.name}</p>
+                            <p className="text-sm text-foreground/70">{apt.doctorId.specialization}</p>
                           </div>
                         </div>
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          appointment.status === 'Booked' ? 'bg-blue-100 text-blue-700' :
-                          appointment.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                          'bg-green-100 text-green-700'
-                        }`}>
-                          {appointment.status}
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-foreground">{formatDate(apt.date)}</p>
+                          <p className="text-xs text-foreground/60">{apt.time}</p>
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-center text-foreground/60 py-8">No appointments yet.</p>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full" onClick={() => navigate('/my-appointments')}>
+                  View All Appointments
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

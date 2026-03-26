@@ -47,7 +47,7 @@ export const getUserNotifications = async (req,res) => {
 
     }
     catch(error){
-        res.json(400).json({success:false,message:error.messagd});
+        res.status(400).json({success:false,message:error.message});
     }
 }
 

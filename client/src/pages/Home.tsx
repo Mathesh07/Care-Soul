@@ -9,7 +9,7 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
-  const autoSlideRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const autoSlideRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
 
   // Healthcare images for slider
   const sliderImages = [
@@ -75,27 +75,27 @@ export default function Home() {
       <Navbar />
 
       <main className="flex-1">
-        <section className="bg-gradient-to-br from-primary via-primary-light to-accent dark:from-slate-900 dark:via-slate-800 dark:to-blue-900 text-white py-16 md:py-24 animate-fade-in transition-colors duration-300">
+        <section className="bg-hero-gradient text-white py-16 md:py-24 animate-fade-in transition-colors duration-300 border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="animate-slide-up">
-                <h1 className="text-4xl md:text-5xl font-bold mb-6 text-balance">Healthcare at Your Fingertips</h1>
-                <p className="text-lg md:text-xl opacity-95 mb-8 text-balance">
+                <h1 className="text-4xl md:text-5xl font-bold mb-6 text-balance bg-gradient-to-r from-sky-800 via-teal-800 to-emerald-700 dark:from-cyan-300 dark:via-cyan-200 dark:to-teal-200 bg-clip-text text-transparent">Healthcare at Your Fingertips</h1>
+                <p className="text-lg md:text-xl opacity-90 mb-8 text-balance text-foreground/80">
                   CARE SOUL brings quality healthcare access to rural communities. Book appointments, consult doctors
                   online, and manage your health records—all in one place.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
+                  <Button size="lg" variant="default">
                     Get Started Free
                   </Button>
-                  <Button size="lg" variant="ghost" className="border border-white hover:bg-white/10 text-white">
+                  <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-foreground/5">
                     Watch Demo
                   </Button>
                 </div>
               </div>
               <div className="hidden md:flex justify-center animate-scale-in">
                 <div
-                  className="relative w-full aspect-[4/3] max-w-lg bg-white/5 rounded-xl overflow-hidden backdrop-blur-sm border border-white/10 shadow-premium-lg group"
+                  className="relative w-full aspect-[4/3] max-w-lg bg-white/3 rounded-xl overflow-hidden backdrop-blur-md border border-white/[0.08] shadow-navy-xl group hover:shadow-glow-blue transition-all duration-300"
                   onMouseEnter={() => setIsHovering(true)}
                   onMouseLeave={() => setIsHovering(false)}
                 >
@@ -201,7 +201,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-background dark:bg-slate-950 transition-colors duration-300">
+        <section className="py-16 md:py-24 bg-background transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12 animate-slide-up">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">How CARE SOUL Works</h2>
@@ -243,18 +243,18 @@ export default function Home() {
                   <Card className="h-full border-2 border-transparent hover:border-primary dark:hover:border-blue-500 transition-all duration-300">
                     <CardContent className="pt-6">
                       <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-primary dark:bg-blue-600 text-white flex items-center justify-center text-lg font-bold mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold mb-4 group-hover:scale-110 transition-transform duration-300">
                           {step.number}
                         </div>
                       </div>
-                      <h3 className="font-semibold text-lg mb-2 text-foreground group-hover:text-primary dark:group-hover:text-blue-400 transition-colors duration-200">
+                      <h3 className="font-semibold text-lg mb-2 text-foreground group-hover:text-primary transition-colors duration-200">
                         {step.title}
                       </h3>
                       <p className="text-text-secondary text-sm">{step.description}</p>
                     </CardContent>
                   </Card>
                   {i < 3 && (
-                    <div className="hidden md:block absolute top-12 -right-6 w-12 h-0.5 bg-gradient-to-r from-primary to-transparent dark:from-blue-600 group-hover:shadow-lg transition-all duration-300" />
+                    <div className="hidden md:block absolute top-12 -right-6 w-12 h-0.5 bg-gradient-to-r from-primary to-transparent group-hover:shadow-lg transition-all duration-300" />
                   )}
                 </div>
               ))}
@@ -263,7 +263,7 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section className="py-16 md:py-24 bg-surface dark:bg-slate-900 transition-colors duration-300">
+        <section className="py-16 md:py-24 bg-surface transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12 animate-slide-up">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Complete Healthcare Solutions</h2>
@@ -297,7 +297,7 @@ export default function Home() {
               ].map((feature, i) => (
                 <Card
                   key={i}
-                  className="hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer group dark:bg-slate-800"
+                  className="hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer group"
                   style={{
                     animation: `slideUp 0.5s ease-out ${i * 0.1}s both`,
                   }}
@@ -306,7 +306,7 @@ export default function Home() {
                     <div className="text-4xl mb-4 group-hover:scale-125 transition-transform duration-300">
                       {feature.icon}
                     </div>
-                    <h3 className="font-semibold text-lg mb-2 text-foreground group-hover:text-primary dark:group-hover:text-blue-400 transition-colors duration-200">
+                    <h3 className="font-semibold text-lg mb-2 text-foreground group-hover:text-primary transition-colors duration-200">
                       {feature.title}
                     </h3>
                     <p className="text-text-secondary text-sm">{feature.description}</p>
@@ -318,7 +318,7 @@ export default function Home() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-16 md:py-24 bg-background dark:bg-slate-950 border-y border-border transition-colors duration-300">
+        <section className="py-16 md:py-24 bg-background border-y border-border transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 animate-slide-up">
               {[
@@ -334,7 +334,7 @@ export default function Home() {
                     animation: `slideUp 0.5s ease-out ${i * 0.1}s both`,
                   }}
                 >
-                  <div className="text-3xl md:text-4xl font-bold text-primary dark:text-blue-400 mb-2">
+                  <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
                     {stat.number}
                   </div>
                   <p className="text-text-secondary">{stat.label}</p>
@@ -345,14 +345,14 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-primary dark:bg-slate-800 text-white animate-fade-in transition-colors duration-300">
+        <section className="py-16 md:py-24 bg-primary text-primary-foreground animate-fade-in transition-colors duration-300">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Take Control of Your Health?</h2>
             <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
               Join thousands of patients accessing quality healthcare in rural communities. Start your journey today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
+              <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                 Sign Up Now
               </Button>
               <Button size="lg" variant="ghost" className="border border-white hover:bg-white/10 text-white">

@@ -22,7 +22,7 @@ export default function DoctorPortal() {
           {activeTab === "dashboard" && (
             <div className="space-y-8">
               {/* Welcome Section */}
-              <div className="bg-gradient-to-r from-primary to-primary-light text-white rounded-lg p-8">
+              <div className="bg-gradient-to-r from-primary to-primary-light text-primary-foreground rounded-lg p-8">
                 <h1 className="text-3xl font-bold mb-2">Welcome, Dr. Priya Sharma</h1>
                 <p className="opacity-90">
                   Manage your appointments, patient records, and consultations efficiently in one dashboard.
@@ -172,14 +172,14 @@ export default function DoctorPortal() {
                       <CardTitle className="text-lg">Pending Actions</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                        <p className="text-sm font-medium text-yellow-900">3 prescriptions to review</p>
+                      <div className="p-3 bg-warning/15 rounded-lg border border-warning/40">
+                        <p className="text-sm font-medium text-foreground/90">3 prescriptions to review</p>
                       </div>
-                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-sm font-medium text-blue-900">5 lab results to check</p>
+                      <div className="p-3 bg-primary/10 rounded-lg border border-primary/30">
+                        <p className="text-sm font-medium text-foreground/90">5 lab results to check</p>
                       </div>
-                      <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                        <p className="text-sm font-medium text-purple-900">2 messages from patients</p>
+                      <div className="p-3 bg-accent/25 rounded-lg border border-accent/50">
+                        <p className="text-sm font-medium text-foreground/90">2 messages from patients</p>
                       </div>
                     </CardContent>
                   </Card>

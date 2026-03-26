@@ -17,13 +17,13 @@ router.use(protect);
 // POST /api/notifications/send  → send a notification
 router.post('/send', sendNotification);
 
-// GET /api/notifications/user/:id  → get user's notifications
-router.get('/user/:id', getUserNotifications);
+// GET /api/notifications/user/me  → get user's notifications (must come before /:id param routes)
+router.get('/user/me', getUserNotifications);
+
+// PUT /api/notifications/read-all  → mark all as read (specific route must come before /:id)
+router.put('/read-all', markAllAsRead);
 
 // PUT /api/notifications/:id/read  → mark one as read
 router.put('/:id/read', markAsRead);
-
-// PUT /api/notifications/read-all  → mark all as read
-router.put('/read-all', markAllAsRead);
 
 export default router;

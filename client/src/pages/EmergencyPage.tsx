@@ -64,26 +64,29 @@ const EmergencyPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-red-50">
+        <div className="min-h-screen bg-background text-foreground">
             <Navbar />
 
-            <div className="max-w-2xl mx-auto px-4 py-8">
+            <div className="max-w-5xl mx-auto px-4 py-10">
 
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <AlertTriangle className="h-16 w-16 text-red-600 mx-auto mb-4" />
-                    <h1 className="text-3xl font-bold text-red-700">Emergency Services</h1>
-                    <p className="text-gray-600 mt-2">Get immediate medical assistance</p>
+                <div className="relative overflow-hidden rounded-2xl border border-red-500/30 bg-gradient-to-br from-red-500/10 via-card to-red-500/5 p-6 md:p-8 mb-8 shadow-premium-md">
+                    <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-red-500/20 blur-3xl" />
+                    <div className="relative text-center">
+                        <AlertTriangle className="h-14 w-14 text-red-500 mx-auto mb-4" />
+                        <h1 className="text-3xl md:text-4xl font-bold text-red-600 dark:text-red-400">Emergency Services</h1>
+                        <p className="text-foreground/70 mt-2">Get immediate medical assistance and alert response teams quickly.</p>
+                    </div>
                 </div>
 
                 {/* Emergency contacts — always visible */}
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                    <a href="tel:102" className="bg-red-600 text-white rounded-lg p-4 text-center hover:bg-red-700 transition">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                    <a href="tel:102" className="rounded-xl p-5 text-center border border-red-500/30 bg-red-500 text-white hover:bg-red-600 transition shadow-premium-sm">
                         <Phone className="h-6 w-6 mx-auto mb-2" />
                         <p className="font-bold text-lg">102</p>
                         <p className="text-sm opacity-90">Ambulance</p>
                     </a>
-                    <a href="tel:100" className="bg-blue-600 text-white rounded-lg p-4 text-center hover:bg-blue-700 transition">
+                    <a href="tel:100" className="rounded-xl p-5 text-center border border-primary/30 bg-primary text-primary-foreground hover:bg-primary/90 transition shadow-premium-sm">
                         <Phone className="h-6 w-6 mx-auto mb-2" />
                         <p className="font-bold text-lg">100</p>
                         <p className="text-sm opacity-90">Police</p>
@@ -92,80 +95,91 @@ const EmergencyPage = () => {
 
                 {/* Alert sent confirmation */}
                 {status === 'sent' ? (
-                    <div className="bg-green-100 border border-green-400 rounded-lg p-6 text-center">
+                    <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-6 text-center shadow-premium-sm">
                         <div className="text-4xl mb-3">✅</div>
-                        <h2 className="text-xl font-bold text-green-800">Alert Sent!</h2>
-                        <p className="text-green-700 mt-2">
+                        <h2 className="text-xl font-bold text-green-700 dark:text-green-400">Alert Sent!</h2>
+                        <p className="text-green-700/90 dark:text-green-300 mt-2">
                             Your emergency has been reported. Help is on the way.
                         </p>
                         {coords && (
-                            <div className="mt-4 flex items-center justify-center gap-2 text-green-600">
+                            <div className="mt-4 flex items-center justify-center gap-2 text-green-700 dark:text-green-300">
                                 <MapPin className="h-4 w-4" />
                                 <span className="text-sm">{location}</span>
                             </div>
                         )}
                         <button
                             onClick={() => setStatus('idle')}
-                            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
                         >
                             Send Another Alert
                         </button>
                     </div>
                 ) : (
                     /* Emergency Form */
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                            Send Emergency Alert
-                        </h2>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2 bg-card rounded-xl border border-border/60 shadow-premium-sm p-6">
+                            <h2 className="text-xl font-semibold mb-2">Send Emergency Alert</h2>
+                            <p className="text-sm text-foreground/70 mb-5">Press the emergency button to notify the response team immediately.</p>
 
-                        {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-                                {error}
+                            {error && (
+                                <div className="bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg mb-4">
+                                    {error}
+                                </div>
+                            )}
+
+                            {/* Optional description */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-foreground/80 mb-2">
+                                    Describe your emergency (optional)
+                                </label>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="e.g., Chest pain, difficulty breathing..."
+                                    rows={3}
+                                    className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-red-500/40"
+                                />
                             </div>
-                        )}
 
-                        {/* Optional description */}
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Describe your emergency (optional)
-                            </label>
-                            <textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="e.g., Chest pain, difficulty breathing..."
-                                rows={3}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                            />
+                            {/* Location status */}
+                            {location && (
+                                <div className="flex items-center gap-2 text-foreground/70 mb-4 text-sm bg-foreground/5 rounded-lg p-3">
+                                    <MapPin className="h-4 w-4 text-primary" />
+                                    <span>{location}</span>
+                                </div>
+                            )}
+
+                            {/* Big red emergency button */}
+                            <button
+                                onClick={handleEmergency}
+                                disabled={status !== 'idle'}
+                                className="w-full bg-red-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-3 shadow-premium-md"
+                            >
+                                {status === 'locating' && (
+                                    <><Loader className="h-5 w-5 animate-spin" /> Getting your location...</>
+                                )}
+                                {status === 'sending' && (
+                                    <><Loader className="h-5 w-5 animate-spin" /> Sending alert...</>
+                                )}
+                                {status === 'idle' && (
+                                    <><AlertTriangle className="h-5 w-5" /> Send Emergency Alert</>
+                                )}
+                            </button>
+
+                            <p className="text-xs text-foreground/60 text-center mt-3">
+                                This will immediately alert our emergency response team
+                            </p>
                         </div>
 
-                        {/* Location status */}
-                        {location && (
-                            <div className="flex items-center gap-2 text-gray-600 mb-4 text-sm">
-                                <MapPin className="h-4 w-4" />
-                                <span>{location}</span>
-                            </div>
-                        )}
-
-                        {/* Big red emergency button */}
-                        <button
-                            onClick={handleEmergency}
-                            disabled={status !== 'idle'}
-                            className="w-full bg-red-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-3"
-                        >
-                            {status === 'locating' && (
-                                <><Loader className="h-5 w-5 animate-spin" /> Getting your location...</>
-                            )}
-                            {status === 'sending' && (
-                                <><Loader className="h-5 w-5 animate-spin" /> Sending alert...</>
-                            )}
-                            {status === 'idle' && (
-                                <><AlertTriangle className="h-5 w-5" /> Send Emergency Alert</>
-                            )}
-                        </button>
-
-                        <p className="text-xs text-gray-500 text-center mt-3">
-                            This will immediately alert our emergency response team
-                        </p>
+                        <div className="bg-card rounded-xl border border-border/60 shadow-premium-sm p-6">
+                            <h3 className="font-semibold mb-3">Safety Checklist</h3>
+                            <ul className="space-y-3 text-sm text-foreground/70">
+                                <li className="flex gap-2"><span className="text-red-500">•</span> Stay calm and provide accurate details.</li>
+                                <li className="flex gap-2"><span className="text-red-500">•</span> Keep your phone line available.</li>
+                                <li className="flex gap-2"><span className="text-red-500">•</span> Share visible landmarks if possible.</li>
+                                <li className="flex gap-2"><span className="text-red-500">•</span> Call 102 directly for severe emergencies.</li>
+                            </ul>
+                        </div>
                     </div>
                 )}
             </div>

@@ -75,7 +75,7 @@ export const verifyDoctor = async (req, res) => {
     try {
         const { doctorId } = req.params;
 
-        const doctor = await Dockter.findByIdAndUpdate(
+        const doctor = await Doctor.findByIdAndUpdate(
             doctorId,
             { isVerified: true },
             { new: true } // return the updated document
