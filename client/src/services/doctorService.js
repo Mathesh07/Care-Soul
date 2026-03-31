@@ -1,4 +1,6 @@
 import api from './api';
+export const getAllDoctors = () =>
+  api.get('/doctors').then(r => r.data);
 export const searchDoctors = (filters = {}) =>
   api.get('/doctors/search', {params:filters}).then(r => r.data);
 export const getDoctorById = (id) =>
@@ -10,3 +12,12 @@ export const createDoctorProfile = (data) =>
   api.post('/doctors/profile', data).then(r => r.data);
 export const updateDoctorProfile = (data) =>
   api.put('/doctors/profile/me', data).then(r => r.data);
+
+export const doctorService = {
+  getAllDoctors,
+  searchDoctors,
+  getDoctorById,
+  getDoctorSlots,
+  createDoctorProfile,
+  updateDoctorProfile
+};

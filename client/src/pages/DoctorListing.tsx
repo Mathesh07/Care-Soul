@@ -95,46 +95,72 @@ const DoctorListing = () => {
         </div>
         
         {/* Search Filters */}
-        <Card className="mb-10">
-          <CardHeader>
-            <CardTitle>Search Filters</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="mb-10 overflow-hidden border border-primary/20 shadow-lg shadow-primary/5">
+          <div className="h-1.5 bg-gradient-to-r from-primary via-accent to-primary" />
+          <CardHeader className="pb-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <CardTitle className="text-xl">Search Filters</CardTitle>
+                <p className="mt-1 text-sm text-foreground/60">
+                  Narrow results by city and specialty to find the right doctor faster.
+                </p>
+              </div>
+              <div className="inline-flex w-fit items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                <Search className="h-3.5 w-3.5" />
+                Smart Search
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+              <div className="space-y-2 lg:col-span-4">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-foreground/65">
                   Location
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground/40 h-5 w-5 pointer-events-none" />
+                  <MapPin className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-primary/50" />
                   <input
                     type="text"
                     placeholder="Enter city"
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
-                    className="pl-10 w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all bg-background text-foreground placeholder:text-foreground/40"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        void handleSearch();
+                      }
+                    }}
+                    className="w-full rounded-xl border border-border/80 bg-background px-4 py-3 pl-10 text-foreground outline-none transition-all placeholder:text-foreground/40 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+
+              <div className="space-y-2 lg:col-span-4">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-foreground/65">
                   Specialization
                 </label>
                 <div className="relative">
-                  <Stethoscope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground/40 h-5 w-5 pointer-events-none" />
+                  <Stethoscope className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-primary/50" />
                   <input
                     type="text"
                     placeholder="Enter specialization"
                     value={searchSpecialization}
                     onChange={(e) => setSearchSpecialization(e.target.value)}
-                    className="pl-10 w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all bg-background text-foreground placeholder:text-foreground/40"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        void handleSearch();
+                      }
+                    }}
+                    className="w-full rounded-xl border border-border/80 bg-background px-4 py-3 pl-10 text-foreground outline-none transition-all placeholder:text-foreground/40 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
-              
-              <div className="flex flex-col justify-end">
-                <Button onClick={handleSearch} disabled={searching} className="gap-2">
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-4 lg:items-end">
+                <Button
+                  onClick={handleSearch}
+                  disabled={searching}
+                  className="h-11 gap-2 rounded-xl bg-gradient-to-r from-primary to-blue-500 text-white shadow-md shadow-primary/20"
+                >
                   {searching ? (
                     <>
                       <Loader className="h-4 w-4 animate-spin" />
@@ -147,14 +173,38 @@ const DoctorListing = () => {
                     </>
                   )}
                 </Button>
-              </div>
 
-              <div className="flex flex-col justify-end">
-                <Button onClick={fetchDoctors} variant="outline" className="gap-2">
+                <Button
+                  onClick={() => {
+                    setSearchLocation('');
+                    setSearchSpecialization('');
+                    void fetchDoctors();
+                  }}
+                  variant="outline"
+                  className="h-11 rounded-xl border-primary/30 text-primary hover:bg-primary/5"
+                >
                   Reset
                 </Button>
               </div>
             </div>
+
+            {(searchLocation || searchSpecialization) && (
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                  Active filters:
+                </span>
+                {searchLocation ? (
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    Location: {searchLocation}
+                  </span>
+                ) : null}
+                {searchSpecialization ? (
+                  <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+                    Specialization: {searchSpecialization}
+                  </span>
+                ) : null}
+              </div>
+            )}
           </CardContent>
         </Card>
 

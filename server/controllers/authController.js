@@ -6,6 +6,9 @@ import dotenv from "dotenv";
 
 dotenv.config(); // Load .env file
 
+const otpStore = new Map();
+const OTP_TTL_MS = 10 * 60 * 1000;
+
 // Generate a random 6-digit OTP
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -40,41 +43,58 @@ async function sendEmail(to, subject, text) {
 export const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    const normalizedEmail = String(email || "").toLowerCase().trim();
 
     // Validate inputs
-    if (!name || !email || !password) {
+    if (!name || !normalizedEmail || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      console.log("User already exists with email:", email);
-      return res.status(400).json({ message: "User already exists" });
-    }
+    const existingUser = await User.findOne({ email: normalizedEmail }).select("+passwordHash");
+
+    // Generate OTP
+    const otp = generateOTP();
+    const otpExpires = Date.now() + OTP_TTL_MS;
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate OTP
-    const otp = generateOTP();
-    const otpExpires = Date.now() + 10 * 60 * 1000; // 10 mins expiry
+    if (existingUser && (existingUser.isEmailVerified || existingUser.isVerified)) {
+      console.log("User already exists with email:", normalizedEmail);
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-    // Create user (unverified initially)
-    const user = new User({
-      name,
-      email,
-      password: hashedPassword,
-      isVerified: false,
-      otp,
-      otpExpires,
-    });
+    let user = existingUser;
+    if (!user) {
+      // Create user (unverified initially) using the active schema fields.
+      user = new User({
+        name,
+        email: normalizedEmail,
+        passwordHash: hashedPassword,
+        role: "patient",
+        isEmailVerified: false,
+        accountStatus: "pending_verification",
+      });
+    } else {
+      // Resend OTP path for existing unverified users.
+      user.name = name;
+      user.passwordHash = hashedPassword;
+      user.isEmailVerified = false;
+      user.accountStatus = "pending_verification";
+    }
 
     await user.save();
 
+    otpStore.set(normalizedEmail, {
+      otp,
+      otpExpires,
+      userId: user._id.toString(),
+    });
+
     // Send OTP to email
     await sendEmail(
-      email,
+      normalizedEmail,
       "Verify your Care-Soul Account",
       `Hi ${name},\n\nYour OTP for verifying your account is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nIf you did not request this, please ignore this email.\n\n- Care-Soul Team`
     );
@@ -91,27 +111,28 @@ export const signup = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    console.log("Verifying OTP for email:", email, "with OTP:", otp);
+    const normalizedEmail = String(email || "").toLowerCase().trim();
+    console.log("Verifying OTP for email:", normalizedEmail, "with OTP:", otp);
     // Validate input
-    if (!email || !otp) {
+    if (!normalizedEmail || !otp) {
       return res.status(400).json({ message: "Email and OTP are required" });
     }
 
-    // Find user
-    const user = await User.findOne({ email });
-    console.log(user)
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // Check OTP and expiry
-    if (user.otp !== otp || Date.now() > user.otpExpires) {
+    const otpEntry = otpStore.get(normalizedEmail);
+    if (!otpEntry || otpEntry.otp !== otp || Date.now() > otpEntry.otpExpires) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
+    // Find user
+    const user = await User.findOne({ email: normalizedEmail });
+    console.log(user)
+    if (!user) return res.status(404).json({ message: "User not found" });
+
     // Mark user as verified
-    user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpires = undefined;
+    user.isEmailVerified = true;
+    user.accountStatus = "active";
     await user.save();
+    otpStore.delete(normalizedEmail);
 
     // Generate JWT
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
@@ -130,19 +151,24 @@ export const verifyOtp = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = String(email || "").toLowerCase().trim();
 
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail }).select("+passwordHash");
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!user.isVerified) {
+    if (!user.isEmailVerified) {
       return res.status(403).json({ message: "Please verify your email with OTP before logging in" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    if (user.accountStatus === "suspended") {
+      return res.status(403).json({ message: "Your account is suspended" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
@@ -186,7 +212,7 @@ export const updateProfile = async (req, res) => {
 // ========================== CHECK AUTH ==========================
 export const checkAuth = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id).select("-passwordHash -mfaSecret");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     return res.status(200).json({ user });

@@ -84,13 +84,11 @@ function AppointmentCardSkeleton() {
 export default function MyAppointments() {
   const [activeTab, setActiveTab] = useState<TabType>('all');
 
-  const { appointments, isLoading, error, fetchMyAppointments, cancel } = useAppointmentStore((state) => ({
-    appointments: state.appointments as AppointmentItem[],
-    isLoading: state.isLoading,
-    error: state.error,
-    fetchMyAppointments: state.fetchMyAppointments,
-    cancel: state.cancel,
-  }));
+  const appointments = useAppointmentStore((state) => state.appointments as AppointmentItem[]);
+  const isLoading = useAppointmentStore((state) => state.isLoading);
+  const error = useAppointmentStore((state) => state.error);
+  const fetchMyAppointments = useAppointmentStore((state) => state.fetchMyAppointments);
+  const cancel = useAppointmentStore((state) => state.cancel);
 
   useEffect(() => {
     void fetchMyAppointments();
