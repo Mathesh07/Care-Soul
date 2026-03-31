@@ -38,4 +38,4 @@ const doctorSchema = new mongoose.Schema({
   timestamps: true
 });
 
-export default mongoose.model('Doctor', doctorSchema);
+export default mongoose.models.Doctor || mongoose.model('Doctor', doctorSchema);

@@ -1,23 +1,11 @@
-import api from './api.js';
-
-export const appointmentService = {
-  createAppointment: async (appointmentData) => {
-    const response = await api.post('/appointments', appointmentData);
-    return response.data;
-  },
-
-  getMyAppointments: async () => {
-    const response = await api.get('/appointments/my');
-    return response.data;
-  },
-
-  cancelAppointment: async (id) => {
-    const response = await api.put(`/appointments/${id}/cancel`);
-    return response.data;
-  },
-
-  getAppointmentById: async (id) => {
-    const response = await api.get(`/appointments/${id}`);
-    return response.data;
-  }
-};
+import api from './api';
+export const bookAppointment = (data) =>
+  api.post('/appointments', data).then(r => r.data);
+export const getMyAppointments = (filters = {}) =>
+  api.get('/appointments/my', {params:filters}).then(r => r.data);
+export const cancelAppointment = (id, reason) =>
+  api.put(`/appointments/${id}/cancel`,
+  {cancelReason: reason}).then(r => r.data);
+export const getAvailableSlots = (doctorId, date) =>
+  api.get('/appointments/slots',
+  {params:{doctorId,date}}).then(r => r.data);

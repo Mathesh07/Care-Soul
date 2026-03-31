@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService } from '../services/authService';
+import { setAccessToken } from '../services/authTokenManager';
+import { setAuthFailureHandler } from '../services/api';
 
 interface User {
   _id?: string;
@@ -49,6 +51,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const storedUser = authService.getUser();
         
         if (storedToken && storedUser) {
+          setAccessToken(storedToken);
           setToken(storedToken);
           setUser(storedUser);
         }
@@ -66,6 +69,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
+  useEffect(() => {
+    setAuthFailureHandler(() => {
+      setToken(null);
+      setUser(null);
+      window.location.href = '/login';
+    });
+
+    return () => {
+      setAuthFailureHandler(null);
+    };
+  }, []);
+
   const login = (newToken: string, newUser: User) => {
     // Normalize user ID - ensure we have _id for consistency
     const normalizedUser = {
@@ -77,12 +92,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     setToken(newToken);
     setUser(normalizedUser);
+    setAccessToken(newToken);
     authService.setAuthData(newToken, normalizedUser);
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
+    setAccessToken(null);
     authService.logout();
   };
 

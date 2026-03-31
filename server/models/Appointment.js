@@ -32,4 +32,4 @@ const appointmentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-export default mongoose.model('Appointment', appointmentSchema);
+export default mongoose.models.Appointment || mongoose.model('Appointment', appointmentSchema);
