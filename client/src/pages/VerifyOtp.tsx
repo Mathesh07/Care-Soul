@@ -83,14 +83,10 @@ const VerifyOtp = () => {
       setError('');
       setSuccess('');
       
-      // Call signup endpoint to resend OTP
-      const response = await authService.signup({
-        name: localStorage.getItem('pendingName') || 'User',
-        email,
-        password: localStorage.getItem('pendingPassword') || ''
-      });
+      // Call resendOtp endpoint - no password needed
+      const response = await authService.resendOtp(email);
       
-      if (response.success !== false) {
+      if (response.success !== false && response.message) {
         setSuccess('OTP resent to your email');
         setResendCountdown(60);
       } else {

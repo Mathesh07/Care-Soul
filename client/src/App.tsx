@@ -34,8 +34,6 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/verify-otp" element={<VerifyOtp />} />
-                  <Route path="/patient" element={<PatientPortal />} />
-                  <Route path="/doctor" element={<DoctorPortal />} />
                   <Route path="/demo" element={<Demo />} />
 
                   {/* Protected Routes */}

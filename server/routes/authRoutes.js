@@ -11,7 +11,7 @@ router.post('/login',login)
 router.post('/logout',logout)
 router.post('/verify-otp',verifyOtp)
 router.post('/resend-otp',resendOtp)
-router.post('/refresh', protect, refreshToken)
+router.post('/refresh', refreshToken) // Removed protect middleware - refresh doesn't require valid token
 
 export default router;
 

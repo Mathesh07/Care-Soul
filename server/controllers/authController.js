@@ -144,7 +144,7 @@ export const verifyOtp = async (req, res) => {
     return res.status(200).json({
       message: "Account verified successfully",
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -201,7 +201,7 @@ export const login = async (req, res) => {
     return res.status(200).json({
       message: "Login successful",
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -237,7 +237,7 @@ export const updateProfile = async (req, res) => {
 // ========================== CHECK AUTH ==========================
 export const checkAuth = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-passwordHash -mfaSecret");
+    const user = await User.findById(req.user.id).select("-passwordHash");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     return res.status(200).json({ user });
