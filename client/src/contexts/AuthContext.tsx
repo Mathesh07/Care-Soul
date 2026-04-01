@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService } from '../services/authService';
-import { setAccessToken } from '../services/authTokenManager';
+import { setAccessToken, isTokenExpired, getTokenTimeRemaining } from '../services/authTokenManager';
 import { setAuthFailureHandler } from '../services/api';
 
 interface User {
@@ -50,7 +50,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const storedToken = authService.getToken();
         const storedUser = authService.getUser();
         
-        if (storedToken && storedUser) {
+        // Check if token is expired
+        if (storedToken && isTokenExpired(storedToken)) {
+          console.warn('Stored token is expired');
+          // Redirect to OTP verification
+          if (storedUser?.email) {
+            window.location.href = `/login?tokenExpired=true&email=${encodeURIComponent(storedUser.email)}`;
+          } else {
+            window.location.href = '/login';
+          }
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+          setUser(null);
+        } else if (storedToken && storedUser) {
           setAccessToken(storedToken);
           setToken(storedToken);
           setUser(storedUser);
@@ -62,12 +75,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Clear any corrupted data
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        setToken(null);
+        setUser(null);
         setLoading(false);
       }
     };
 
     initAuth();
   }, []);
+
+  // Monitor token expiration
+  useEffect(() => {
+    if (!token || !user) return;
+
+    const checkTokenExpiration = () => {
+      if (isTokenExpired(token)) {
+        console.warn('Token has expired');
+        logout();
+        // Redirect to OTP verification
+        window.location.href = `/login?tokenExpired=true&email=${encodeURIComponent(user.email)}`;
+      }
+    };
+
+    // Check immediately
+    checkTokenExpiration();
+
+    // Check every minute
+    const interval = setInterval(checkTokenExpiration, 60000);
+
+    return () => clearInterval(interval);
+  }, [token, user]);
 
   useEffect(() => {
     setAuthFailureHandler(() => {

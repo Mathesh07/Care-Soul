@@ -3,7 +3,6 @@ import Doctor from '../models/Doctor.js';
 export const getAllDoctors = async (req, res) => {
   try {
     const doctors = await Doctor.find().sort({ name: 1 });
-    console.log(doctors);
     res.status(200).json({
       success: true,
       data: doctors

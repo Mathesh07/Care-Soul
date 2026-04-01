@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -8,7 +9,7 @@ import { clearAuthState, getAccessToken, setAccessToken } from './authTokenManag
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:8000/api';
 
 let authFailureHandler: (() => void) | null = null;
 let refreshPromise: Promise<string | null> | null = null;

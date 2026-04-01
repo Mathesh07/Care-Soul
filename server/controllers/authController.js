@@ -1,12 +1,12 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import OTP from "../models/OTP.js";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 dotenv.config(); // Load .env file
 
-const otpStore = new Map();
 const OTP_TTL_MS = 10 * 60 * 1000;
 
 // Generate a random 6-digit OTP
@@ -53,10 +53,6 @@ export const signup = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ email: normalizedEmail }).select("+passwordHash");
 
-    // Generate OTP
-    const otp = generateOTP();
-    const otpExpires = Date.now() + OTP_TTL_MS;
-
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -86,11 +82,16 @@ export const signup = async (req, res) => {
 
     await user.save();
 
-    otpStore.set(normalizedEmail, {
-      otp,
-      otpExpires,
-      userId: user._id.toString(),
-    });
+    // Generate OTP
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + OTP_TTL_MS);
+
+    // Store OTP in database
+    await OTP.findOneAndUpdate(
+      { email: normalizedEmail },
+      { otp, expiresAt: otpExpires, userId: user._id },
+      { upsert: true, new: true }
+    );
 
     // Send OTP to email
     await sendEmail(
@@ -112,27 +113,30 @@ export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
     const normalizedEmail = String(email || "").toLowerCase().trim();
-    console.log("Verifying OTP for email:", normalizedEmail, "with OTP:", otp);
+
     // Validate input
     if (!normalizedEmail || !otp) {
       return res.status(400).json({ message: "Email and OTP are required" });
     }
 
-    const otpEntry = otpStore.get(normalizedEmail);
-    if (!otpEntry || otpEntry.otp !== otp || Date.now() > otpEntry.otpExpires) {
+    // Find OTP record in database
+    const otpRecord = await OTP.findOne({ email: normalizedEmail });
+    
+    if (!otpRecord || otpRecord.otp !== otp || new Date() > otpRecord.expiresAt) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
     // Find user
     const user = await User.findOne({ email: normalizedEmail });
-    console.log(user)
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // Mark user as verified
     user.isEmailVerified = true;
     user.accountStatus = "active";
     await user.save();
-    otpStore.delete(normalizedEmail);
+
+    // Delete used OTP
+    await OTP.deleteOne({ email: normalizedEmail });
 
     // Generate JWT
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
@@ -160,16 +164,37 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email: normalizedEmail }).select("+passwordHash");
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
     if (!user.isEmailVerified) {
-      return res.status(403).json({ message: "Please verify your email with OTP before logging in" });
+      // Generate and send OTP for email verification
+      const otp = generateOTP();
+      const otpExpires = new Date(Date.now() + OTP_TTL_MS);
+
+      // Store OTP in database
+      await OTP.findOneAndUpdate(
+        { email: normalizedEmail },
+        { otp, expiresAt: otpExpires, userId: user._id },
+        { upsert: true, new: true }
+      );
+
+      // Send OTP to email
+      await sendEmail(
+        normalizedEmail,
+        "Verify your Care-Soul Account",
+        `Hi ${user.name},\n\nYour OTP for verifying your account is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nIf you did not request this, please ignore this email.\n\n- Care-Soul Team`
+      );
+
+      return res.status(403).json({ 
+        requiresOtp: true,
+        message: "Please verify your email with OTP before logging in" 
+      });
     }
 
     if (user.accountStatus === "suspended") {
       return res.status(403).json({ message: "Your account is suspended" });
     }
-
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
@@ -216,6 +241,79 @@ export const checkAuth = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     return res.status(200).json({ user });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// ========================== REFRESH TOKEN ==========================
+export const refreshToken = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized - No user ID found" });
+    }
+
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.isEmailVerified || user.accountStatus !== "active") {
+      return res.status(403).json({ message: "User account is not active" });
+    }
+
+    // Generate new token
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    return res.status(200).json({
+      message: "Token refreshed successfully",
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// ========================== RESEND OTP ==========================
+export const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const normalizedEmail = String(email || "").toLowerCase().trim();
+
+    if (!normalizedEmail) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate new OTP
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + OTP_TTL_MS);
+
+    // Store OTP in database
+    await OTP.findOneAndUpdate(
+      { email: normalizedEmail },
+      { otp, expiresAt: otpExpires, userId: user._id },
+      { upsert: true, new: true }
+    );
+
+    // Send OTP to email
+    await sendEmail(
+      normalizedEmail,
+      "Resend - Verify your Care-Soul Account",
+      `Hi ${user.name},\n\nYour OTP for verifying your account is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nIf you did not request this, please ignore this email.\n\n- Care-Soul Team`
+    );
+
+    return res.status(200).json({
+      message: "OTP resent successfully",
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
