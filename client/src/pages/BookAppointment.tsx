@@ -29,6 +29,33 @@ const BookAppointment = () => {
   const [selectedTime, setSelectedTime] = useState('');
   const [notes, setNotes] = useState('');
 
+  const normalizeTimeSlot = (slot: string) => {
+    const trimmed = slot.trim();
+    if (/^\d{2}:\d{2}$/.test(trimmed)) return trimmed;
+    const match = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!match) return trimmed;
+    const hour = Number(match[1]);
+    const minute = match[2];
+    const period = match[3].toUpperCase();
+    const normalizedHour = period === 'PM'
+      ? (hour === 12 ? 12 : hour + 12)
+      : (hour === 12 ? 0 : hour);
+    return `${String(normalizedHour).padStart(2, '0')}:${minute}`;
+  };
+
+  const isSlotInPast = (slot: string) => {
+    if (!selectedDate) return false;
+    const normalized = normalizeTimeSlot(slot);
+    if (!/^\d{2}:\d{2}$/.test(normalized)) return false;
+    const [h, m] = normalized.split(':').map(Number);
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    if (selectedDate !== todayStr) return false;
+    const slotTime = new Date(now);
+    slotTime.setHours(h, m, 0, 0);
+    return slotTime < now;
+  };
+
   useEffect(() => {
     if (doctorId) {
       fetchDoctorDetails();
@@ -226,7 +253,11 @@ const BookAppointment = () => {
                 >
                   <option value="">Select a time slot</option>
                   {doctor.availableSlots.map((slot, index) => (
-                    <option key={index} value={slot}>
+                    <option
+                      key={index}
+                      value={normalizeTimeSlot(slot)}
+                      disabled={isSlotInPast(slot)}
+                    >
                       {slot}
                     </option>
                   ))}

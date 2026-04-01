@@ -128,9 +128,8 @@ export function Navbar() {
               // Public navigation
               [
                 { href: "/", label: "Home" },
-                { href: "/patient", label: "Patient Portal" },
-                { href: "/doctor", label: "Doctor Portal" },
-                { href: "/admin", label: "Admin" },
+                { href: "/patient-portal", label: "Patient Portal" },
+                { href: "/doctors", label: "Find Doctors" },
                 { href: "/demo", label: "Demo" },
               ].map((link) => (
                 <Link
@@ -142,6 +141,15 @@ export function Navbar() {
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-nav to-blue-accent group-hover:w-full transition-all duration-300 ease-out rounded-full" />
                 </Link>
               ))
+            )}
+            {isAuthenticated && user?.role === "admin" && (
+              <Link
+                to="/admin"
+                className="text-foreground/70 hover:text-blue-nav transition-all duration-300 ease-out text-sm font-medium relative group py-1"
+              >
+                Admin
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-nav to-blue-accent group-hover:w-full transition-all duration-300 ease-out rounded-full" />
+              </Link>
             )}
           </div>
 
@@ -264,9 +272,8 @@ export function Navbar() {
                 // Public navigation
                 [
                   { href: "/", label: "Home" },
-                  { href: "/patient", label: "Patient Portal" },
-                  { href: "/doctor", label: "Doctor Portal" },
-                  { href: "/admin", label: "Admin" },
+                  { href: "/patient-portal", label: "Patient Portal" },
+                  { href: "/doctors", label: "Find Doctors" },
                   { href: "/demo", label: "🎨 Demo" },
                 ].map((link) => (
                   <Link
@@ -278,6 +285,15 @@ export function Navbar() {
                     {link.label}
                   </Link>
                 ))
+              )}
+              {isAuthenticated && user?.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="px-4 py-2 text-text-secondary hover:text-foreground hover:bg-surface-secondary rounded-lg transition-all duration-200 text-sm"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Admin
+                </Link>
               )}
               
               {/* Dynamic Mobile Auth Buttons */}

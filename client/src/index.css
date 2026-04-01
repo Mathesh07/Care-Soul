@@ -238,10 +238,6 @@
     @apply transition-all duration-200 ease-out;
   }
 
-  /* Button hover scale effect */
-  button:not(:disabled):hover {
-    @apply -translate-y-0.5;
-  }
 
   /* Input focus styles */
   input:focus,
@@ -455,13 +451,6 @@
   textarea:focus,
   select:focus {
     @apply ring-2 ring-ring/20;
-  }
-
-  /* Smooth color transitions for theme switching */
-  *,
-  *::before,
-  *::after {
-    @apply transition-colors duration-300 ease-out;
   }
 
   /* Remove transitions for motion-sensitive users */

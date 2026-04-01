@@ -284,7 +284,14 @@ const DoctorListing = () => {
               ))}
             </div>
           </div>
-        ) : !loading && !searching ? (
+        ) : searching ? (
+          <div className="text-center py-16">
+            <div className="inline-flex p-4 bg-primary/10 rounded-full mb-4">
+              <Loader className="h-8 w-8 text-primary animate-spin" />
+            </div>
+            <p className="text-foreground/70 font-medium">Searching doctors...</p>
+          </div>
+        ) : !loading ? (
           <div className="text-center py-16">
             <div className="inline-flex p-4 bg-foreground/5 rounded-full mb-4">
               <Stethoscope className="h-8 w-8 text-foreground/30" />

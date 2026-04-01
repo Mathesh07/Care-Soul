@@ -1,33 +1,59 @@
+import { useEffect, useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
+import { doctorProfileService } from "../../services/doctorProfileService"
+
+interface ConsultationItem {
+  id: string
+  patient: string
+  time: string
+  type: string
+  status: string
+  emergency: boolean
+  appointmentId?: string
+}
 
 export default function Consultations() {
-  const consultations = [
-    {
-      id: 1,
-      patient: "Sarah Johnson",
-      time: "2:00 PM - 2:30 PM",
-      type: "Video Call",
-      status: "Scheduled",
-      emergency: false,
-    },
-    {
-      id: 2,
-      patient: "Rajesh Patel",
-      time: "3:00 PM - 3:45 PM",
-      type: "Video Call",
-      status: "In Progress",
-      emergency: false,
-    },
-    {
-      id: 3,
-      patient: "Emergency - Unknown",
-      time: "Now",
-      type: "Emergency Call",
-      status: "Active",
-      emergency: true,
-    },
-  ]
+  const navigate = useNavigate()
+  const [consultations, setConsultations] = useState<ConsultationItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchConsultations = async () => {
+      try {
+        setLoading(true)
+        const response = await doctorProfileService.getAppointments()
+        const appts = response.data || []
+        const mapped = appts.map((apt: any) => ({
+          id: String(apt._id || apt.id || ""),
+          appointmentId: String(apt._id || apt.id || ""),
+          patient: apt.userId?.name || apt.patientName || "Unknown Patient",
+          time: apt.time || "--:--",
+          type: apt.consultationType || "Video Call",
+          status: apt.status === "Booked" ? "Scheduled" : apt.status,
+          emergency: Boolean(apt.isEmergency),
+        }))
+        setConsultations(mapped)
+      } catch (err: any) {
+        setError(err.response?.data?.message || "Failed to load consultations")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchConsultations()
+  }, [])
+
+  const stats = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0]
+    const todayCount = consultations.filter((item) => item.id && item.status).length
+    const activeCount = consultations.filter((item) => item.status === "In Progress").length
+    const emergencyCount = consultations.filter((item) => item.emergency).length
+    const completedCount = consultations.filter((item) => item.status === "Completed").length
+    return { todayCount, activeCount, emergencyCount, completedCount }
+  }, [consultations])
 
   return (
     <div className="space-y-6">
@@ -41,7 +67,7 @@ export default function Consultations() {
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl mb-2">🎥</div>
-              <p className="text-2xl font-bold text-green-700">12</p>
+              <p className="text-2xl font-bold text-green-700">{stats.todayCount}</p>
               <p className="text-sm text-green-600">Today</p>
             </div>
           </CardContent>
@@ -51,7 +77,7 @@ export default function Consultations() {
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl mb-2">💬</div>
-              <p className="text-2xl font-bold text-blue-700">2</p>
+              <p className="text-2xl font-bold text-blue-700">{stats.activeCount}</p>
               <p className="text-sm text-blue-600">Active</p>
             </div>
           </CardContent>
@@ -61,7 +87,7 @@ export default function Consultations() {
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl mb-2">🚨</div>
-              <p className="text-2xl font-bold text-red-700">1</p>
+              <p className="text-2xl font-bold text-red-700">{stats.emergencyCount}</p>
               <p className="text-sm text-red-600">Emergency</p>
             </div>
           </CardContent>
@@ -71,57 +97,73 @@ export default function Consultations() {
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl mb-2">✅</div>
-              <p className="text-2xl font-bold text-purple-700">156</p>
+              <p className="text-2xl font-bold text-purple-700">{stats.completedCount}</p>
               <p className="text-sm text-purple-600">Completed</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="space-y-4">
-        {consultations.map((consultation) => (
-          <Card key={consultation.id} className={
-            consultation.emergency ? "border-red-200 bg-red-50" : ""
-          }>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                    consultation.emergency ? "bg-red-100" : "bg-primary/10"
-                  }`}>
-                    {consultation.type === "Video Call" && "🎥"}
-                    {consultation.type === "Emergency Call" && "🚨"}
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="text-center py-8">
+          <p className="text-text-secondary">Loading consultations...</p>
+        </div>
+      ) : consultations.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-text-secondary">No consultations found</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {consultations.map((consultation) => (
+            <Card key={consultation.id} className={
+              consultation.emergency ? "border-red-200 bg-red-50" : ""
+            }>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                      consultation.emergency ? "bg-red-100" : "bg-primary/10"
+                    }`}>
+                      {consultation.type === "Video Call" && "🎥"}
+                      {consultation.type === "Emergency Call" && "🚨"}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">{consultation.patient}</h4>
+                      <p className="text-sm text-text-secondary">
+                        {consultation.type} • {consultation.time}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold">{consultation.patient}</h4>
-                    <p className="text-sm text-text-secondary">
-                      {consultation.type} • {consultation.time}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      consultation.status === "Active" ? "bg-red-100 text-red-700" :
+                      consultation.status === "In Progress" ? "bg-blue-100 text-blue-700" :
+                      "bg-green-100 text-green-700"
+                    }`}>
+                      {consultation.status}
+                    </span>
+                    {consultation.appointmentId && consultation.status === "Scheduled" && (
+                      <Button size="sm" onClick={() => navigate(`/consultation/${consultation.appointmentId}`)}>Start Call</Button>
+                    )}
+                    {consultation.appointmentId && consultation.status === "In Progress" && (
+                      <Button size="sm" variant="outline" onClick={() => navigate(`/consultation/${consultation.appointmentId}`)}>Join Call</Button>
+                    )}
+                    {consultation.status === "Active" && (
+                      <Button size="sm" className="bg-red-600 hover:bg-red-700">Emergency</Button>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    consultation.status === "Active" ? "bg-red-100 text-red-700" :
-                    consultation.status === "In Progress" ? "bg-blue-100 text-blue-700" :
-                    "bg-green-100 text-green-700"
-                  }`}>
-                    {consultation.status}
-                  </span>
-                  {consultation.status === "Scheduled" && (
-                    <Button size="sm">Start Call</Button>
-                  )}
-                  {consultation.status === "In Progress" && (
-                    <Button size="sm" variant="outline">Join Call</Button>
-                  )}
-                  {consultation.status === "Active" && (
-                    <Button size="sm" className="bg-red-600 hover:bg-red-700">Emergency</Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <Card>
         <CardHeader>

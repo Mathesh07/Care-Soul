@@ -3,13 +3,18 @@ import { useState } from "react"
 import { Button } from "../components/ui/button"
 import { authService } from "../services/authService"
 import { useAuth } from "../contexts/AuthContext"
-import { Heart, User, Mail, Lock, Eye, EyeOff, Check, AlertCircle, ArrowRight, Shield, Activity } from "lucide-react"
+import { Heart, User, Mail, Lock, Eye, EyeOff, Check, AlertCircle, ArrowRight, Shield, Activity, Stethoscope, Briefcase, MapPin, Clock } from "lucide-react"
 
 export default function Register() {
+  const [role, setRole] = useState<"patient" | "doctor">("patient")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [specialization, setSpecialization] = useState("")
+  const [experience, setExperience] = useState("")
+  const [phone, setPhone] = useState("")
+  const [address, setAddress] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
@@ -27,6 +32,13 @@ export default function Register() {
       return
     }
 
+    if (role === "doctor") {
+      if (!specialization || !experience || !phone) {
+        setError("Please fill in all doctor information")
+        return
+      }
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       return
@@ -42,17 +54,30 @@ export default function Register() {
       setError("")
       setSuccess("")
       
-      const response = await authService.signup({ name, email, password })
+      const signupData: any = { name, email, password, role }
+      
+      if (role === "doctor") {
+        signupData.specialization = specialization
+        signupData.experience = experience
+        signupData.phone = phone
+        signupData.address = address
+      }
+      
+      const response = await authService.signup(signupData)
       
       // Store pending registration data for OTP verification (DO NOT STORE PASSWORD)
       localStorage.setItem('pendingEmail', email)
       localStorage.setItem('pendingName', name)
+      localStorage.setItem('pendingRole', role)
       
       // For signup, the backend sends OTP verification email
       if (response.message) {
-        setSuccess("Registration successful! Please check your email for OTP verification.")
+        const successMsg = role === "doctor"
+          ? "Doctor account registered! Please check your email for OTP verification."
+          : "Registration successful! Please check your email for OTP verification."
+        setSuccess(successMsg)
         setTimeout(() => {
-          navigate("/verify-otp", { state: { email } })
+          navigate("/verify-otp", { state: { email, role } })
         }, 1500)
       } else {
         setError(response.message || "Registration failed")
@@ -70,6 +95,20 @@ export default function Register() {
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) return { strength: 2, text: "Fair", color: "text-yellow-500" }
     return { strength: 3, text: "Strong", color: "text-green-500" }
   }
+
+  const specializations = [
+    "General Practice",
+    "Cardiology",
+    "Dermatology",
+    "Neurology",
+    "Orthopedics",
+    "Pediatrics",
+    "Psychiatry",
+    "Surgery",
+    "Dentistry",
+    "Other"
+  ]
+
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       {/* Left Side - Form */}
@@ -124,6 +163,43 @@ export default function Register() {
 
           {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Role Selection */}
+            <div>
+              <label className="block text-sm font-medium text-foreground/80 mb-3">
+                I want to join as
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRole("patient")}
+                  className={`relative p-4 rounded-xl border-2 transition-all ${
+                    role === "patient"
+                      ? "border-emerald-500 bg-emerald-50"
+                      : "border-border hover:border-border/80"
+                  }`}
+                >
+                  <div className="flex flex-col items-center space-y-2">
+                    <User className={role === "patient" ? "text-emerald-600" : "text-foreground/40"} />
+                    <span className="text-sm font-medium">Patient</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole("doctor")}
+                  className={`relative p-4 rounded-xl border-2 transition-all ${
+                    role === "doctor"
+                      ? "border-emerald-500 bg-emerald-50"
+                      : "border-border hover:border-border/80"
+                  }`}
+                >
+                  <div className="flex flex-col items-center space-y-2">
+                    <Stethoscope className={role === "doctor" ? "text-emerald-600" : "text-foreground/40"} />
+                    <span className="text-sm font-medium">Doctor</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
             {/* Name Field */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-foreground/80 mb-2">
@@ -142,7 +218,7 @@ export default function Register() {
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
                       : 'border-border hover:border-border/80'
                   }`}
-                  placeholder="John Doe"
+                  placeholder={role === "doctor" ? "Dr. John Doe" : "John Doe"}
                   required
                 />
                 <User className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
@@ -177,6 +253,132 @@ export default function Register() {
                 }`} />
               </div>
             </div>
+
+            {/* Doctor-specific fields */}
+            {role === "doctor" && (
+              <>
+                {/* Phone Field */}
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-foreground/80 mb-2">
+                    Phone number
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      onFocus={() => setFocusedField('phone')}
+                      onBlur={() => setFocusedField('')}
+                      className={`w-full px-4 py-3 pl-11 border rounded-xl transition-all duration-200 bg-background ${
+                        focusedField === 'phone' 
+                          ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
+                          : 'border-border hover:border-border/80'
+                      }`}
+                      placeholder="+91 98765 43210"
+                      required
+                    />
+                    <Activity className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      focusedField === 'phone' ? 'text-emerald-500' : 'text-foreground/40'
+                    }`} />
+                  </div>
+                </div>
+
+                {/* Specialization Field */}
+                <div>
+                  <label htmlFor="specialization" className="block text-sm font-medium text-foreground/80 mb-2">
+                    Specialization
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="specialization"
+                      value={specialization}
+                      onChange={(e) => setSpecialization(e.target.value)}
+                      onFocus={() => setFocusedField('specialization')}
+                      onBlur={() => setFocusedField('')}
+                      className={`w-full px-4 py-3 pl-11 border rounded-xl transition-all duration-200 bg-background appearance-none ${
+                        focusedField === 'specialization' 
+                          ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
+                          : 'border-border hover:border-border/80'
+                      }`}
+                      required
+                    >
+                      <option value="">Select specialization</option>
+                      {specializations.map((spec) => (
+                        <option key={spec} value={spec}>{spec}</option>
+                      ))}
+                    </select>
+                    <Stethoscope className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors pointer-events-none ${
+                      focusedField === 'specialization' ? 'text-emerald-500' : 'text-foreground/40'
+                    }`} />
+                  </div>
+                </div>
+
+                {/* Experience Field */}
+                <div>
+                  <label htmlFor="experience" className="block text-sm font-medium text-foreground/80 mb-2">
+                    Years of experience
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="experience"
+                      type="number"
+                      min="0"
+                      max="60"
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value)}
+                      onFocus={() => setFocusedField('experience')}
+                      onBlur={() => setFocusedField('')}
+                      className={`w-full px-4 py-3 pl-11 border rounded-xl transition-all duration-200 bg-background ${
+                        focusedField === 'experience' 
+                          ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
+                          : 'border-border hover:border-border/80'
+                      }`}
+                      placeholder="10"
+                      required
+                    />
+                    <Clock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      focusedField === 'experience' ? 'text-emerald-500' : 'text-foreground/40'
+                    }`} />
+                  </div>
+                </div>
+
+                {/* Address Field */}
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-foreground/80 mb-2">
+                    Clinic/Hospital address
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="address"
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      onFocus={() => setFocusedField('address')}
+                      onBlur={() => setFocusedField('')}
+                      className={`w-full px-4 py-3 pl-11 border rounded-xl transition-all duration-200 bg-background ${
+                        focusedField === 'address' 
+                          ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
+                          : 'border-border hover:border-border/80'
+                      }`}
+                      placeholder="123 Medical Center, City"
+                    />
+                    <MapPin className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${
+                      focusedField === 'address' ? 'text-emerald-500' : 'text-foreground/40'
+                    }`} />
+                  </div>
+                </div>
+
+                {/* Doctor verification notice */}
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start space-x-3">
+                  <Shield className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-blue-800 text-sm font-medium">Admin Verification Required</p>
+                    <p className="text-blue-700 text-xs mt-1">After email verification, your account will be reviewed by our admin team before activation.</p>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Password Field */}
             <div>
@@ -315,7 +517,7 @@ export default function Register() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading || password !== confirmPassword || password.length < 6}
+              disabled={loading || password !== confirmPassword || password.length < 6 || (role === "doctor" && (!specialization || !experience || !phone))}
               className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-muted disabled:to-muted text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed shadow-lg flex items-center justify-center"
             >
               {loading ? (
@@ -325,7 +527,7 @@ export default function Register() {
                 </>
               ) : (
                 <>
-                  Create account
+                  Create {role === "doctor" ? "Doctor" : ""} account
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </>
               )}

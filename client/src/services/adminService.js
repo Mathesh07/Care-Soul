@@ -22,6 +22,31 @@ export const adminService = {
         return response.data;
     },
 
+    // Doctor verification methods
+    getPendingDoctors: async () => {
+        const response = await api.get('/admin/pending-doctors');
+        return response.data;
+    },
+
+    getVerifiedDoctors: async () => {
+        const response = await api.get('/admin/verified-doctors');
+        return response.data;
+    },
+
+    approveDoctor: async (doctorId, notes = '') => {
+        const response = await api.post(`/admin/doctors/${doctorId}/approve`, {
+            verificationNotes: notes
+        });
+        return response.data;
+    },
+
+    rejectDoctor: async (doctorId, reason) => {
+        const response = await api.post(`/admin/doctors/${doctorId}/reject`, {
+            rejectionReason: reason
+        });
+        return response.data;
+    },
+
     deleteUser: async (userId) => {
         const response = await api.delete(`/admin/users/${userId}`);
         return response.data;

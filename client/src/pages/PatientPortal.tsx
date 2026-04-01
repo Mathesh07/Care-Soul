@@ -1,5 +1,6 @@
-import { useState } from "react"
-import { Navbar } from "../components/ui/navbar"
+import { useEffect, useState } from "react"
+import { useLocation } from "react-router-dom"
+import RoleBasedNavbar from "../components/ui/role-based-navbar"
 import { Footer } from "../components/ui/footer"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
@@ -7,23 +8,60 @@ import { StatusBadge } from "../components/ui/status-badge"
 import { EmergencyMode } from "../components/ui/emergency-mode"
 import { AvailabilityCalendar } from "../components/ui/availability-calendar"
 import { HealthHighlights } from "../components/ui/health-highlights"
-import PatientNav from "../components/patient/patient-nav"
 import AppointmentBooking from "../components/patient/appointment-booking"
 import HealthRecords from "../components/patient/health-records"
-import { sampleAppointments } from "../lib/sample-data"
 import { APPOINTMENT_STATUS } from "../lib/types"
+import { appointmentService } from "../services/appointmentService"
 
 export default function PatientPortal() {
+  const location = useLocation()
   const [activeTab, setActiveTab] = useState<"dashboard" | "appointments" | "records" | "emergency">("dashboard")
+  const [appointments, setAppointments] = useState<any[]>([])
+  const [appointmentsLoading, setAppointmentsLoading] = useState(true)
+
+  const isValidTab = (tab: string): tab is typeof activeTab => (
+    ['dashboard', 'appointments', 'records', 'emergency'] as const
+  ).includes(tab as any)
+
+  useEffect(() => {
+    const loadAppointments = async () => {
+      try {
+        setAppointmentsLoading(true)
+        const response = await appointmentService.getMyAppointments()
+        setAppointments(response.data || [])
+      } catch {
+        setAppointments([])
+      } finally {
+        setAppointmentsLoading(false)
+      }
+    }
+
+    loadAppointments()
+  }, [])
+
+  useEffect(() => {
+    const hash = location.hash.replace('#', '')
+    if (hash && isValidTab(hash) && hash !== activeTab) {
+      setActiveTab(hash)
+    }
+  }, [location.hash, activeTab])
+
+  useEffect(() => {
+    const nextHash = `#${activeTab}`
+    if (location.hash !== nextHash) {
+      window.history.replaceState(null, '', `${location.pathname}${nextHash}`)
+    }
+  }, [activeTab, location.pathname, location.hash])
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      <RoleBasedNavbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        isPatientPortal={true}
+      />
 
-      <div className="flex-1 bg-surface">
-        <PatientNav activeTab={activeTab} setActiveTab={setActiveTab} />
-
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
           {activeTab === "dashboard" && (
             <div className="space-y-8 animate-fade-in">
               {/* Welcome Section */}
@@ -94,22 +132,30 @@ export default function PatientPortal() {
               <div className="animate-slide-up" style={{animationDelay: '0.6s', animationFillMode: 'both'}}>
                 <h2 className="text-2xl font-bold text-foreground/95 mb-4">Recent Appointments</h2>
                 <div className="space-y-4">
-                  {sampleAppointments.slice(0, 3).map((apt) => (
-                    <Card key={apt.id} className="hover:shadow-lg transition-all duration-300 ease-out hover:-translate-y-0.5 cursor-pointer">
-                      <CardContent className="pt-6">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <h4 className="font-semibold">{apt.doctorName}</h4>
-                            <p className="text-sm text-text-secondary">{apt.type}</p>
-                            <p className="text-sm mt-2">
-                              {new Date(apt.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {apt.time}
-                            </p>
+                  {(appointmentsLoading ? [] : appointments).slice(0, 3).map((apt) => {
+                    const doctorName = apt.doctorId?.name || apt.doctor?.name || "Doctor"
+                    const consultationType = apt.consultationType || "Appointment"
+                    const status = apt.status || APPOINTMENT_STATUS.PENDING
+                    const dateText = apt.date
+                      ? new Date(apt.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                      : '-'
+                    return (
+                      <Card key={apt._id || apt.id} className="hover:shadow-lg transition-all duration-300 ease-out hover:-translate-y-0.5 cursor-pointer">
+                        <CardContent className="pt-6">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <h4 className="font-semibold">{doctorName}</h4>
+                              <p className="text-sm text-text-secondary">{consultationType}</p>
+                              <p className="text-sm mt-2">
+                                {dateText} at {apt.time || '-'}
+                              </p>
+                            </div>
+                            <StatusBadge status={status} />
                           </div>
-                          <StatusBadge status={apt.status} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -168,7 +214,6 @@ export default function PatientPortal() {
             </div>
           )}
         </main>
-      </div>
 
       <Footer />
     </div>

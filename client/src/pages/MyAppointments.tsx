@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, MessageSquare, Phone, Video } from 'lucide-react';
 import { useAppointmentStore } from '../stores/appointmentStore';
+import { Navbar } from '../components/ui/navbar';
 
 type TabType = 'all' | 'upcoming' | 'completed' | 'cancelled';
 
@@ -26,7 +27,12 @@ const tabs: { key: TabType; label: string }[] = [
 ];
 
 function normalizeStatus(status: string | undefined): string {
-  return (status || 'PENDING').toUpperCase();
+  const value = String(status || '').trim().toLowerCase();
+  if (!value) return 'PENDING';
+  if (value === 'booked') return 'CONFIRMED';
+  if (value === 'cancelled') return 'CANCELLED';
+  if (value === 'completed') return 'COMPLETED';
+  return value.toUpperCase();
 }
 
 function statusBadgeClass(status: string): string {
@@ -115,9 +121,13 @@ export default function MyAppointments() {
   }, [activeTab, appointments]);
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl">
-        <h1 className="mb-4 text-2xl font-semibold text-gray-900">My Appointments</h1>
+    <div className="min-h-screen bg-background text-foreground">
+      <Navbar />
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">My Appointments</h1>
+          <p className="text-text-secondary mt-2">Track your upcoming and past consultations.</p>
+        </div>
 
         <div className="mb-6 flex flex-wrap gap-2">
           {tabs.map((tab) => (
@@ -127,8 +137,8 @@ export default function MyAppointments() {
               onClick={() => setActiveTab(tab.key)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 activeTab === tab.key
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card text-foreground/70 hover:bg-surface-secondary'
               }`}
             >
               {tab.label}
@@ -149,11 +159,11 @@ export default function MyAppointments() {
             <AppointmentCardSkeleton />
           </div>
         ) : filteredAppointments.length === 0 ? (
-          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm">
-            <p className="mb-4 text-lg font-medium text-gray-900">No appointments yet</p>
+          <div className="rounded-2xl border border-border/60 bg-card p-8 text-center shadow-premium-sm">
+            <p className="mb-4 text-lg font-medium text-foreground">No appointments yet</p>
             <Link
               to="/doctors"
-              className="inline-flex rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               Find Doctors
             </Link>
@@ -172,12 +182,12 @@ export default function MyAppointments() {
               return (
                 <div
                   key={id || `${name}-${dateText}-${timeSlot}`}
-                  className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                  className="rounded-2xl border border-border/60 bg-card p-5 shadow-premium-sm hover:shadow-premium-md transition-all duration-300"
                 >
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
-                      <p className="text-sm text-gray-500">{specialization}</p>
+                      <h3 className="text-lg font-semibold text-foreground">{name}</h3>
+                      <p className="text-sm text-text-secondary">{specialization}</p>
                     </div>
                     <span
                       className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClass(status)}`}
@@ -186,13 +196,13 @@ export default function MyAppointments() {
                     </span>
                   </div>
 
-                  <div className="mb-3 grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-3">
+                  <div className="mb-3 grid grid-cols-1 gap-2 text-sm text-foreground/70 sm:grid-cols-3">
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-500" />
+                      <Calendar className="h-4 w-4 text-foreground/50" />
                       <span>{dateText}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-500" />
+                      <Clock className="h-4 w-4 text-foreground/50" />
                       <span>{timeSlot}</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -201,11 +211,11 @@ export default function MyAppointments() {
                     </div>
                   </div>
 
-                  {status === 'PENDING' && id ? (
+                  {status === 'CONFIRMED' && id ? (
                     <button
                       type="button"
                       onClick={() => void cancel(id, 'Patient cancelled')}
-                      className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                      className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90"
                     >
                       Cancel
                     </button>

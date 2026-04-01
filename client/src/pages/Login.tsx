@@ -59,7 +59,11 @@ export default function Login() {
       // If token is present, user is logged in (no OTP needed)
       if (response.token && response.user) {
         login(response.token, response.user)
-        navigate("/")
+        // Redirect based on user role
+        const redirectPath = response.user.role === 'doctor' ? '/doctor-dashboard' : 
+                            response.user.role === 'admin' ? '/admin' : 
+                            '/patient-portal'
+        navigate(redirectPath)
       } else if (response.requiresOtp) {
         // OTP required
         setStage("otp")
@@ -100,7 +104,11 @@ export default function Login() {
 
       if (response.token && response.user) {
         login(response.token, response.user)
-        navigate("/")
+        // Redirect based on user role
+        const redirectPath = response.user.role === 'doctor' ? '/doctor-dashboard' : 
+                            response.user.role === 'admin' ? '/admin' : 
+                            '/patient-portal'
+        navigate(redirectPath)
       } else {
         setError(response.message || "OTP verification failed")
       }

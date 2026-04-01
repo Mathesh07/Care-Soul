@@ -1,3 +1,8 @@
+/**
+ * @deprecated Use RoleBasedNavbar or PatientNavbar instead
+ * This component is kept for backward compatibility only
+ * See: components/ui/role-based-navbar.tsx
+ */
 interface PatientNavProps {
   activeTab: "dashboard" | "appointments" | "records" | "emergency"
   setActiveTab: (tab: "dashboard" | "appointments" | "records" | "emergency") => void
