@@ -59,15 +59,15 @@ export const markAsRead = async (req,res) => {
         const notification = await Notification.findById(notificationId);
         
         if (!notification){
-            res.status(404).json({
+            return res.status(404).json({
                 success : false,
                 message : "Notification is not found",
             })
         }
 
         if (notification.receiverId.toString() !== userId){
-            res.status(403).json({
-                sucess:false,
+            return res.status(403).json({
+                success:false,
                 message : 'Unauthorized',
             })
         }
@@ -97,7 +97,7 @@ export const markAllAsRead = async (req,res) => {
         );
 
         res.status(200).json({
-            sucess:true,
+            success:true,
             message:"All marked as read"
         });
     }

@@ -14,7 +14,7 @@ const notificationSchema = new mongoose.Schema({
 
     type:{
         type:String,
-        enum:['appointment','emergency','system','remainder'],
+        enum:['appointment','emergency','system','reminder'],
         default:'system'
     },
 
@@ -35,7 +35,7 @@ const notificationSchema = new mongoose.Schema({
         default : false,
     },
 
-    realtedId:{
+    relatedId:{
         type:mongoose.Schema.Types.ObjectId,
         default : null,
     },

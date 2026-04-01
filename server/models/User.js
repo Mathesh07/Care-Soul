@@ -6,14 +6,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
-    password: {
+    passwordHash: {
       type: String,
       required: true,
+      select: false,
     },
     name: {
       type: String,
       required: true,
+      trim: true,
     },
     phone: {
       type: String,
@@ -21,18 +25,21 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
+      enum: ['patient', 'doctor', 'admin'],
+      default: 'patient',
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    accountStatus: {
+      type: String,
+      enum: ['pending_verification', 'active', 'suspended'],
+      default: 'pending_verification',
     },
     isVerified: {
       type: Boolean,
       default: false,
-    },
-    otp: {
-      type: String, 
-    },
-    otpExpires: {
-      type: Date, 
     },
   },
   { timestamps: true }

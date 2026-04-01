@@ -14,7 +14,7 @@ const emergencySchema = new mongoose.Schema({
 
     location: {
         type: String,
-        default: 'Unkown Location',
+        default: 'Unknown Location',
     },
 
     latitude: {
@@ -23,7 +23,7 @@ const emergencySchema = new mongoose.Schema({
     },
 
     longitude: {
-        type: String,
+        type: Number,
         default: null,
     },
 

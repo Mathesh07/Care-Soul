@@ -3,7 +3,7 @@ import User from '../models/User.js';
 export const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.findById(userId).select('-password');
+    const user = await User.findById(userId).select('-passwordHash');
 
     if (!user) {
       return res.status(404).json({
@@ -43,7 +43,7 @@ export const updateProfile = async (req, res) => {
 
     await user.save();
 
-    const updatedUser = await User.findById(userId).select('-password');
+    const updatedUser = await User.findById(userId).select('-passwordHash');
 
     res.status(200).json({
       success: true,
