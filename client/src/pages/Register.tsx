@@ -44,10 +44,9 @@ export default function Register() {
       
       const response = await authService.signup({ name, email, password })
       
-      // Store pending registration data for OTP verification
+      // Store pending registration data for OTP verification (DO NOT STORE PASSWORD)
       localStorage.setItem('pendingEmail', email)
       localStorage.setItem('pendingName', name)
-      localStorage.setItem('pendingPassword', password)
       
       // For signup, the backend sends OTP verification email
       if (response.message) {

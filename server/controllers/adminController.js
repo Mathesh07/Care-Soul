@@ -11,7 +11,7 @@ import Emergency from '../models/Emergency.js';
 export const getAllUsers = async (req, res) => {
     try {
 
-        const users = await User.find().select('-password').sort({ createdAt: -1 });
+        const users = await User.find().select('-passwordHash').sort({ createdAt: -1 });
         res.status(200).json({ success: true, data: users, count: users.length });
     }
     catch (error) {
@@ -51,7 +51,7 @@ export const getDashboardStats = async (req, res) => {
             Doctor.countDocuments(),
             Appointment.countDocuments(),
             Emergency.countDocuments({ status: 'active' }),
-            User.find().select('-password').sort({ createdAt: -1 }).limit(5)
+            User.find().select('-passwordHash').sort({ createdAt: -1 }).limit(5)
         ]);
 
         res.status(200).json({

@@ -13,11 +13,23 @@ const appointmentSchema = new mongoose.Schema({
   },
   date: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^\d{4}-\d{2}-\d{2}$/.test(v); // YYYY-MM-DD format
+      },
+      message: 'Date must be in YYYY-MM-DD format'
+    }
   },
   time: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^\d{2}:\d{2}$/.test(v); // HH:MM format
+      },
+      message: 'Time must be in HH:MM format'
+    }
   },
   status: {
     type: String,

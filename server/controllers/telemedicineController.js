@@ -4,7 +4,7 @@ import TelemedicineSession from '../models/TelemedicineSession.js';
 
 export const createSession = async (req, res) => {
     try {
-        if (req.user?.role === 'user') {
+        if (req.user?.role === 'patient') {
             return res.status(403).json({
                 success: false,
                 message: 'Patients are not allowed to create video rooms',

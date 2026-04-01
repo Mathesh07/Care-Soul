@@ -37,10 +37,6 @@ const userSchema = new mongoose.Schema(
       enum: ['pending_verification', 'active', 'suspended'],
       default: 'pending_verification',
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
   },
   { timestamps: true }
 );

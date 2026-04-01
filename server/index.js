@@ -49,9 +49,14 @@ app.get('/', (req, res) => {
   res.send('Backend is running!');
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-  connectDB();
+// Connect to database before starting the server
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}).catch((err) => {
+  console.error('Failed to connect to database:', err);
+  process.exit(1);
 });
 
 
