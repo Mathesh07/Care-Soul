@@ -8,43 +8,7 @@ interface HealthHighlightsProps {
 export function HealthHighlights({ autoplayInterval = 3000 }: HealthHighlightsProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
   
-  const highlights = [
-    {
-      title: "Blood Pressure",
-      value: "120/80",
-      status: "Normal",
-      icon: "❤️",
-      color: "text-green-600",
-    },
-    {
-      title: "Heart Rate",
-      value: "72 bpm",
-      status: "Healthy",
-      icon: "💓",
-      color: "text-red-600",
-    },
-    {
-      title: "Blood Sugar",
-      value: "95 mg/dL",
-      status: "Normal",
-      icon: "🩸",
-      color: "text-blue-600",
-    },
-    {
-      title: "BMI",
-      value: "22.5",
-      status: "Healthy",
-      icon: "⚖️",
-      color: "text-purple-600",
-    },
-    {
-      title: "Temperature",
-      value: "98.6°F",
-      status: "Normal",
-      icon: "🌡️",
-      color: "text-orange-600",
-    },
-  ]
+  const highlights = HEALTH_HIGHLIGHTS
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -96,3 +60,41 @@ export function HealthHighlights({ autoplayInterval = 3000 }: HealthHighlightsPr
     </Card>
   )
 }
+
+const HEALTH_HIGHLIGHTS = [
+  {
+    title: "Blood Pressure",
+    value: "120/80",
+    status: "Normal",
+    icon: "❤️",
+    color: "text-green-600",
+  },
+  {
+    title: "Heart Rate",
+    value: "72 bpm",
+    status: "Healthy",
+    icon: "💓",
+    color: "text-red-600",
+  },
+  {
+    title: "Blood Sugar",
+    value: "95 mg/dL",
+    status: "Normal",
+    icon: "🩸",
+    color: "text-blue-600",
+  },
+  {
+    title: "BMI",
+    value: "22.5",
+    status: "Healthy",
+    icon: "⚖️",
+    color: "text-purple-600",
+  },
+  {
+    title: "Temperature",
+    value: "98.6°F",
+    status: "Normal",
+    icon: "🌡️",
+    color: "text-orange-600",
+  },
+]

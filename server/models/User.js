@@ -34,8 +34,42 @@ const userSchema = new mongoose.Schema(
     },
     accountStatus: {
       type: String,
-      enum: ['pending_verification', 'active', 'suspended'],
+      enum: ['pending_verification', 'pending_admin_verification', 'active', 'suspended', 'rejected'],
       default: 'pending_verification',
+    },
+    // Doctor-specific fields
+    specialization: {
+      type: String,
+      default: '',
+      description: 'Doctor specialization'
+    },
+    yearsOfExperience: {
+      type: Number,
+      default: 0,
+      description: 'Years of experience for doctors'
+    },
+    address: {
+      type: String,
+      default: '',
+      description: 'Clinic/Hospital address for doctors'
+    },
+    isDocterVerifiedByAdmin: {
+      type: Boolean,
+      default: false,
+      description: 'Only applicable when role is doctor'
+    },
+    doctorVerificationRequestDate: {
+      type: Date,
+      default: null,
+    },
+    doctorVerifiedByAdminDate: {
+      type: Date,
+      default: null,
+    },
+    verificationNotes: {
+      type: String,
+      default: '',
+      description: 'Notes from admin regarding doctor verification'
     },
   },
   { timestamps: true }

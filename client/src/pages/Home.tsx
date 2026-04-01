@@ -6,7 +6,6 @@ import { Card, CardContent } from "../components/ui/card"
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [isMounted, setIsMounted] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
   const autoSlideRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
@@ -34,10 +33,6 @@ export default function Home() {
       alt: "Rural healthcare support",
     },
   ]
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   // Auto-slide logic
   useEffect(() => {
@@ -99,102 +94,93 @@ export default function Home() {
                   onMouseEnter={() => setIsHovering(true)}
                   onMouseLeave={() => setIsHovering(false)}
                 >
-                  {isMounted && (
-                    <>
-                      {/* Image slider container */}
-                      <div
-                        className="flex h-full transition-transform duration-500 ease-out"
-                        style={{
-                          transform: `translateX(-${currentSlide * 100}%)`,
-                        }}
-                      >
-                        {sliderImages.map((image, index) => (
-                          <div key={index} className="min-w-full h-full flex-shrink-0">
-                            <img
-                              src={image.src}
-                              alt={image.alt}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                            {/* Subtle gradient overlay for depth */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-                          </div>
-                        ))}
+                  {/* Image slider container */}
+                  <div
+                    className="flex h-full transition-transform duration-500 ease-out"
+                    style={{
+                      transform: `translateX(-${currentSlide * 100}%)`,
+                    }}
+                  >
+                    {sliderImages.map((image, index) => (
+                      <div key={index} className="min-w-full h-full flex-shrink-0">
+                        <img
+                          src={image.src}
+                          alt={image.alt}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        {/* Subtle gradient overlay for depth */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
                       </div>
+                    ))}
+                  </div>
 
-                      {/* Navigation controls - subtle and appear on hover */}
+                  {/* Navigation controls - subtle and appear on hover */}
+                  <button
+                    onClick={goToPrevious}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/20 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    aria-label="Previous image"
+                  >
+                    <svg
+                      className="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+
+                  <button
+                    onClick={goToNext}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/20 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    aria-label="Next image"
+                  >
+                    <svg
+                      className="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+
+                  {/* Play/Pause control */}
+                  <button
+                    onClick={togglePause}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/20 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    aria-label={isPaused ? "Play auto-slide" : "Pause auto-slide"}
+                  >
+                    <svg
+                      className="w-3.5 h-3.5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      {isPaused ? (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.868v4.264a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      ) : (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+                      )}
+                    </svg>
+                  </button>
+
+                  {/* Progress dots indicator */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {sliderImages.map((_, index) => (
                       <button
-                        onClick={goToPrevious}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/20 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        aria-label="Previous image"
-                      >
-                        <svg
-                          className="w-4 h-4 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                      </button>
-
-                      <button
-                        onClick={goToNext}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/20 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        aria-label="Next image"
-                      >
-                        <svg
-                          className="w-4 h-4 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
-
-                      {/* Play/Pause control */}
-                      <button
-                        onClick={togglePause}
-                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/20 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        aria-label={isPaused ? "Play auto-slide" : "Pause auto-slide"}
-                      >
-                        {isPaused ? (
-                          <svg
-                            className="w-3 h-3 text-white ml-0.5"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="w-3 h-3 text-white"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-                          </svg>
-                        )}
-                      </button>
-
-                      {/* Progress dots indicator */}
-                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                        {sliderImages.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => goToSlide(index)}
-                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
-                              currentSlide === index
-                                ? "bg-white w-6"
-                                : "bg-white/40 hover:bg-white/60"
-                            }`}
-                            aria-label={`Go to slide ${index + 1}`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
+                        key={index}
+                        onClick={() => goToSlide(index)}
+                        className={`w-1.5 h-1.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
+                          currentSlide === index
+                            ? "bg-white w-6"
+                            : "bg-white/40 hover:bg-white/60"
+                        }`}
+                        aria-label={`Go to slide ${index + 1}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

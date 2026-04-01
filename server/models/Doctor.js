@@ -14,8 +14,7 @@ const doctorSchema = new mongoose.Schema({
   specialization: {
     type: String,
     required: true,
-    trim: true,
-    enum: ['Cardiology', 'Neurology', 'Orthopedics', 'Dermatology', 'Pediatrics', 'General Medicine', 'Psychiatry', 'Oncology', 'Other']
+    trim: true
   },
   location: {
     type: String,
@@ -33,10 +32,7 @@ const doctorSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  availableSlots: [{
-    date: String,
-    time: String
-  }],
+  availableSlots: [String],
   experience: {
     type: String,
     default: ''

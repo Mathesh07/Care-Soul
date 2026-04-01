@@ -50,7 +50,7 @@ export const useAppointmentStore = create<AppointmentStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await bookAppointment(data);
-      const created = (response?.appointment || response?.data || response) as AppointmentItem;
+      const created = (response?.data || response?.appointment || response) as AppointmentItem;
       const appointments = [created, ...get().appointments];
       set({ appointments, isLoading: false });
     } catch (error: unknown) {
@@ -65,7 +65,7 @@ export const useAppointmentStore = create<AppointmentStore>((set, get) => ({
       await cancelAppointment(id, reason);
       const appointments = get().appointments.map((item) => {
         if (item._id === id || item.id === id) {
-          return { ...item, status: 'CANCELLED' };
+          return { ...item, status: 'Cancelled' };
         }
         return item;
       });

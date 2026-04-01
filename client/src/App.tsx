@@ -9,7 +9,7 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import VerifyOtp from "./pages/VerifyOtp"
 import PatientPortal from "./pages/PatientPortal"
-import DoctorPortal from "./pages/DoctorPortal"
+import DoctorDashboard from "./pages/DoctorDashboard"
 import Demo from "./pages/Demo"
 import Dashboard from "./pages/Dashboard"
 import DoctorListing from "./pages/DoctorListing"
@@ -42,9 +42,9 @@ function App() {
                       <Dashboard />
                     </ProtectedRoute>
                   } />
-                  <Route path="/doctor-portal" element={
-                    <ProtectedRoute adminOnly={false}>
-                      <DoctorPortal />
+                  <Route path="/doctor-dashboard" element={
+                    <ProtectedRoute>
+                      <DoctorDashboard />
                     </ProtectedRoute>
                   } />
                   <Route path="/admin" element={
@@ -72,7 +72,7 @@ function App() {
                       <EmergencyPage />
                     </ProtectedRoute>
                   } />
-                  <Route path="/consultation/:sessionId" element={
+                  <Route path="/consultation/:appointmentId" element={
                     <ProtectedRoute>
                       <VideoConsultation />
                     </ProtectedRoute>

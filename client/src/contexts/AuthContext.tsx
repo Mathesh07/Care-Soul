@@ -12,6 +12,11 @@ interface User {
   role: string;
   isVerified: boolean;
   createdAt?: string;
+  // Doctor-specific fields
+  specialization?: string;
+  yearsOfExperience?: number;
+  address?: string;
+  isDocterVerifiedByAdmin?: boolean;
 }
 
 interface AuthContextType {
@@ -63,6 +68,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           localStorage.removeItem('user');
           setToken(null);
           setUser(null);
+          setLoading(false);
+          return;
         } else if (storedToken && storedUser) {
           setAccessToken(storedToken);
           setToken(storedToken);

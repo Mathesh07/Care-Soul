@@ -4,7 +4,7 @@ import { notificationService } from '../services/notificationService';
 export interface NotificationItem {
   _id?: string;
   id?: string;
-  read?: boolean;
+  isRead?: boolean;
   createdAt?: string;
   [key: string]: unknown;
 }
@@ -20,7 +20,7 @@ interface NotificationStore {
 }
 
 function countUnread(list: NotificationItem[]): number {
-  return list.reduce((acc, item) => acc + (item.read ? 0 : 1), 0);
+  return list.reduce((acc, item) => acc + (item.isRead ? 0 : 1), 0);
 }
 
 export const useNotificationStore = create<NotificationStore>((set, get) => ({
@@ -46,7 +46,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       await notificationService.markAsRead(id);
       const notifications = get().notifications.map((item) => {
         if (item._id === id || item.id === id) {
-          return { ...item, read: true };
+          return { ...item, isRead: true };
         }
         return item;
       });
@@ -60,7 +60,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   markAllRead: async () => {
     try {
       await notificationService.markAllAsRead();
-      const notifications = get().notifications.map((item) => ({ ...item, read: true }));
+      const notifications = get().notifications.map((item) => ({ ...item, isRead: true }));
       set({ notifications, unreadCount: 0 });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to mark notifications as read';
