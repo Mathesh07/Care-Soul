@@ -5,7 +5,7 @@ import { CareSOULLogo } from "../ui/care-soul-logo"
 import { NotificationCenter } from "../ui/notification-center"
 import { useTheme } from "../theme-provider"
 import { useAuth } from "../../contexts/AuthContext"
-import { LogOut, User } from "lucide-react"
+import { LogOut, User, Home, Calendar, Users, Pill, ClipboardList, DollarSign, Video } from "lucide-react"
 
 interface DoctorNavbarProps {
   activeTab: "dashboard" | "appointments" | "patients" | "prescriptions" | "health-records" | "payments" | "consultations"
@@ -29,13 +29,10 @@ export default function DoctorNavbar({ activeTab, setActiveTab }: DoctorNavbarPr
   }
 
   const tabs = [
-    { id: "dashboard" as const, label: "Dashboard", icon: "🏠" },
-    { id: "appointments" as const, label: "Appointments", icon: "📅" },
-    { id: "patients" as const, label: "My Patients", icon: "👥" },
-    { id: "prescriptions" as const, label: "Prescriptions", icon: "💊" },
-    { id: "health-records" as const, label: "Health Records", icon: "📋" },
-    { id: "payments" as const, label: "Payments", icon: "💰" },
-    { id: "consultations" as const, label: "Consultations", icon: "🎥" },
+    { id: "dashboard" as const, label: "Dashboard", icon: <Home className="w-4 h-4" /> },
+    { id: "appointments" as const, label: "Appointments", icon: <Calendar className="w-4 h-4" /> },
+    { id: "patients" as const, label: "My Patients", icon: <Users className="w-4 h-4" /> },
+    { id: "health-records" as const, label: "Health Records", icon: <ClipboardList className="w-4 h-4" /> },
   ]
 
   return (
@@ -114,14 +111,14 @@ export default function DoctorNavbar({ activeTab, setActiveTab }: DoctorNavbarPr
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? "border-primary text-primary"
                     : "border-transparent text-text-secondary hover:text-foreground"
                 }`}
               >
-                <span className="mr-2">{tab.icon}</span>
-                {tab.label}
+                {tab.icon}
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>

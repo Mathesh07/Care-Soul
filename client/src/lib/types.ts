@@ -1,9 +1,10 @@
 // Appointment Status Types and Constants
 export const APPOINTMENT_STATUS = {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled',
+  PENDING: 'Pending',
+  BOOKED: 'Booked',
+  COMPLETED: 'Completed',
+  CANCELLED: 'Cancelled',
+  REJECTED: 'Rejected',
 } as const;
 
 export type AppointmentStatus = typeof APPOINTMENT_STATUS[keyof typeof APPOINTMENT_STATUS];

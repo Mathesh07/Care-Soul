@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
 import { doctorProfileService } from "../../services/doctorProfileService"
+import { Users, ClipboardList, AlertTriangle, CheckCircle, User } from 'lucide-react'
 
 export default function PatientSummary() {
   const [patients, setPatients] = useState<any[]>([])
@@ -62,7 +63,7 @@ export default function PatientSummary() {
         <Card className="bg-green-50 border-green-200">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-3xl mb-2">👥</div>
+              <div className="flex justify-center items-center mb-2 text-green-600"><Users className="w-8 h-8" /></div>
               <p className="text-2xl font-bold text-green-700">{stats.total}</p>
               <p className="text-sm text-green-600">Total Patients</p>
             </div>
@@ -72,7 +73,7 @@ export default function PatientSummary() {
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-3xl mb-2">📋</div>
+              <div className="flex justify-center items-center mb-2 text-blue-600"><ClipboardList className="w-8 h-8" /></div>
               <p className="text-2xl font-bold text-blue-700">{stats.active}</p>
               <p className="text-sm text-blue-600">Active Cases</p>
             </div>
@@ -82,7 +83,7 @@ export default function PatientSummary() {
         <Card className="bg-yellow-50 border-yellow-200">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-3xl mb-2">⚠️</div>
+              <div className="flex justify-center items-center mb-2 text-yellow-600"><AlertTriangle className="w-8 h-8" /></div>
               <p className="text-2xl font-bold text-yellow-700">{stats.needsReview}</p>
               <p className="text-sm text-yellow-600">Need Review</p>
             </div>
@@ -92,7 +93,7 @@ export default function PatientSummary() {
         <Card className="bg-purple-50 border-purple-200">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-3xl mb-2">✅</div>
+              <div className="flex justify-center items-center mb-2 text-purple-600"><CheckCircle className="w-8 h-8" /></div>
               <p className="text-2xl font-bold text-purple-700">{stats.stable}</p>
               <p className="text-sm text-purple-600">Stable</p>
             </div>
@@ -125,8 +126,8 @@ export default function PatientSummary() {
                 <div key={patient.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        👤
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                        <User className="w-5 h-5" />
                       </div>
                       <div>
                         <h4 className="font-semibold">{patient.name}</h4>

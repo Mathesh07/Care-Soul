@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
 import { StatusBadge } from "../ui/status-badge"
 import { doctorProfileService } from "../../services/doctorProfileService"
+import { Calendar, CheckCircle, Clock, User } from 'lucide-react'
 
 interface Appointment {
   _id: string
@@ -48,8 +49,8 @@ export default function AppointmentsList() {
         
         // Calculate stats
         const today = new Date().toISOString().split('T')[0]
-        const todayAppts = appts.filter((apt: Appointment) => apt.date === today)
-        const pendingAppts = appts.filter((apt: Appointment) => apt.status === 'Booked')
+        const todayAppts = appts.filter((apt: Appointment) => apt.date === today && apt.status === 'Booked')
+        const pendingAppts = appts.filter((apt: Appointment) => apt.status === 'Pending')
         const completedAppts = appts.filter((apt: Appointment) => apt.status === 'Completed')
         
         setStats({
@@ -63,6 +64,18 @@ export default function AppointmentsList() {
       console.error('Error fetching appointments:', err)
       setError(err.response?.data?.message || 'Failed to load appointments')
     } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleStatusUpdate = async (id: string, status: string) => {
+    try {
+      setLoading(true)
+      await doctorProfileService.updateAppointmentStatus(id, status)
+      await fetchAppointments()
+    } catch (err: any) {
+      console.error('Error updating status:', err)
+      setError(err.response?.data?.message || 'Failed to update status')
       setLoading(false)
     }
   }
@@ -86,7 +99,7 @@ export default function AppointmentsList() {
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-3xl mb-2">📅</div>
+              <div className="flex justify-center items-center mb-2 text-blue-600"><Calendar className="w-8 h-8" /></div>
               <p className="text-2xl font-bold text-blue-700">{stats.totalAppointments}</p>
               <p className="text-sm text-blue-600">Total Appointments</p>
             </div>
@@ -96,7 +109,7 @@ export default function AppointmentsList() {
         <Card className="bg-green-50 border-green-200">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-3xl mb-2">✅</div>
+              <div className="flex justify-center items-center mb-2 text-green-600"><CheckCircle className="w-8 h-8" /></div>
               <p className="text-2xl font-bold text-green-700">{stats.todayAppointments}</p>
               <p className="text-sm text-green-600">Today</p>
             </div>
@@ -106,7 +119,7 @@ export default function AppointmentsList() {
         <Card className="bg-yellow-50 border-yellow-200">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-3xl mb-2">⏰</div>
+              <div className="flex justify-center items-center mb-2 text-yellow-600"><Clock className="w-8 h-8" /></div>
               <p className="text-2xl font-bold text-yellow-700">{stats.pendingAppointments}</p>
               <p className="text-sm text-yellow-600">Pending</p>
             </div>
@@ -116,7 +129,7 @@ export default function AppointmentsList() {
         <Card className="bg-purple-50 border-purple-200">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-3xl mb-2">✓</div>
+              <div className="flex justify-center items-center mb-2 text-purple-600"><CheckCircle className="w-8 h-8" /></div>
               <p className="text-2xl font-bold text-purple-700">{stats.completedAppointments}</p>
               <p className="text-sm text-purple-600">Completed</p>
             </div>
@@ -149,8 +162,8 @@ export default function AppointmentsList() {
                 <div key={apt._id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        👤
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                        <User className="w-5 h-5" />
                       </div>
                       <div>
                         <h4 className="font-semibold">{apt.userId?.name || 'Unknown'}</h4>
@@ -162,6 +175,12 @@ export default function AppointmentsList() {
                   </div>
                   <div className="flex items-center gap-2">
                     <StatusBadge status={apt.status} />
+                    {apt.status === 'Pending' && (
+                      <>
+                        <Button variant="default" size="sm" onClick={() => handleStatusUpdate(apt._id, 'Booked')} className="bg-green-600 hover:bg-green-700 text-white border-transparent">Accept</Button>
+                        <Button variant="destructive" size="sm" onClick={() => handleStatusUpdate(apt._id, 'Rejected')}>Reject</Button>
+                      </>
+                    )}
                     <Button variant="ghost" size="sm">View</Button>
                   </div>
                 </div>

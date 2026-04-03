@@ -28,36 +28,7 @@ const BookAppointment = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [notes, setNotes] = useState('');
-  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
-  const [slotsLoading, setSlotsLoading] = useState(false);
-  const [slotsError, setSlotsError] = useState('');
 
-  const normalizeTimeSlot = (slot: string) => {
-    const trimmed = slot.trim();
-    if (/^\d{2}:\d{2}$/.test(trimmed)) return trimmed;
-    const match = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    if (!match) return trimmed;
-    const hour = Number(match[1]);
-    const minute = match[2];
-    const period = match[3].toUpperCase();
-    const normalizedHour = period === 'PM'
-      ? (hour === 12 ? 12 : hour + 12)
-      : (hour === 12 ? 0 : hour);
-    return `${String(normalizedHour).padStart(2, '0')}:${minute}`;
-  };
-
-  const isSlotInPast = (slot: string) => {
-    if (!selectedDate) return false;
-    const normalized = normalizeTimeSlot(slot);
-    if (!/^\d{2}:\d{2}$/.test(normalized)) return false;
-    const [h, m] = normalized.split(':').map(Number);
-    const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
-    if (selectedDate !== todayStr) return false;
-    const slotTime = new Date(now);
-    slotTime.setHours(h, m, 0, 0);
-    return slotTime < now;
-  };
 
   useEffect(() => {
     if (doctorId) {
@@ -65,34 +36,7 @@ const BookAppointment = () => {
     }
   }, [doctorId]);
 
-  useEffect(() => {
-    const loadSlots = async () => {
-      if (!doctorId || !selectedDate) {
-        setAvailableSlots([]);
-        return;
-      }
 
-      try {
-        setSlotsLoading(true);
-        setSlotsError('');
-        const response = await appointmentService.getAvailableSlots(doctorId, selectedDate);
-        if (response.success) {
-          setAvailableSlots(response.data?.slots || []);
-        } else {
-          setAvailableSlots([]);
-          setSlotsError(response.message || 'Failed to load available slots');
-        }
-      } catch (err: any) {
-        setAvailableSlots([]);
-        setSlotsError(err.response?.data?.message || 'Failed to load available slots');
-      } finally {
-        setSlotsLoading(false);
-      }
-    };
-
-    setSelectedTime('');
-    void loadSlots();
-  }, [doctorId, selectedDate]);
 
   const fetchDoctorDetails = async () => {
     try {
@@ -157,9 +101,7 @@ const BookAppointment = () => {
     return maxDate.toISOString().split('T')[0];
   };
 
-  const timeOptions = selectedDate
-    ? availableSlots
-    : doctor?.availableSlots || [];
+
 
   if (loading) {
     return (
@@ -242,16 +184,7 @@ const BookAppointment = () => {
                 </div>
               )}
               
-              <div>
-                <p className="text-sm font-medium text-foreground/80 mb-2">Available Time Slots:</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {(doctor.availableSlots || []).map((slot, index) => (
-                    <div key={index} className="bg-foreground/5 text-foreground/70 text-xs px-2 py-1 rounded text-center">
-                      {slot}
-                    </div>
-                  ))}
-                </div>
-              </div>
+
             </div>
           </div>
 
@@ -281,32 +214,13 @@ const BookAppointment = () => {
                   <Clock className="h-4 w-4 inline mr-2" />
                   Select Time
                 </label>
-                <select
+                <input
+                  type="time"
                   value={selectedTime}
                   onChange={(e) => setSelectedTime(e.target.value)}
                   required
                   className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-primary/40 focus:border-transparent"
-                >
-                  <option value="">Select a time slot</option>
-                  {timeOptions.map((slot, index) => (
-                    <option
-                      key={index}
-                      value={normalizeTimeSlot(slot)}
-                      disabled={isSlotInPast(slot)}
-                    >
-                      {slot}
-                    </option>
-                  ))}
-                </select>
-                {slotsLoading && (
-                  <p className="text-xs text-foreground/60 mt-2">Loading available slots...</p>
-                )}
-                {slotsError && (
-                  <p className="text-xs text-red-600 mt-2">{slotsError}</p>
-                )}
-                {!slotsLoading && selectedDate && timeOptions.length === 0 && (
-                  <p className="text-xs text-foreground/60 mt-2">No available slots for this date.</p>
-                )}
+                />
               </div>
 
               <div>

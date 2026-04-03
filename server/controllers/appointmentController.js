@@ -1,5 +1,6 @@
 import Appointment from '../models/Appointment.js';
 import Doctor from '../models/Doctor.js';
+import Notification from '../models/Notification.js';
 
 const normalizeTimeSlot = (slot) => {
   if (!slot) return '';
@@ -61,6 +62,19 @@ export const createAppointment = async (req, res) => {
     await appointment.save();
     await appointment.populate('doctorId', 'name specialization location');
 
+    if (doctor && doctor.userId) {
+      await Notification.create({
+        receiverId: doctor.userId,
+        senderId: userId,
+        title: 'New Appointment',
+        message: `A new appointment was requested for ${date} at ${time}.`,
+        type: 'appointment',
+        relatedId: appointment._id,
+        onModel: 'Appointment',
+        isRead: false
+      });
+    }
+
     res.status(201).json({
       success: true,
       data: appointment,
@@ -81,6 +95,31 @@ export const getMyAppointments = async (req, res) => {
     const appointments = await Appointment.find({ userId })
       .populate('doctorId', 'name specialization location')
       .sort({ date: -1, time: -1 });
+
+    const today = new Date().toISOString().split('T')[0];
+    const todaysAppointments = appointments.filter(a => a.date === today && a.status === 'Booked');
+
+    for (const apt of todaysAppointments) {
+      if (apt.doctorId && apt.doctorId._id) {
+        const existing = await Notification.findOne({
+          receiverId: userId,
+          relatedId: apt._id,
+          type: 'appointment_reminder'
+        });
+        if (!existing) {
+          await Notification.create({
+            receiverId: userId,
+            senderId: apt.doctorId._id,
+            title: 'Appointment Today',
+            message: `Reminder: You have an appointment with Dr. ${apt.doctorId.name} today at ${apt.time}.`,
+            type: 'appointment_reminder',
+            relatedId: apt._id,
+            onModel: 'Appointment',
+            isRead: false
+          });
+        }
+      }
+    }
 
     res.status(200).json({
       success: true,
@@ -125,6 +164,20 @@ export const cancelAppointment = async (req, res) => {
 
     appointment.status = 'Cancelled';
     await appointment.save();
+
+    const doctorUser = await Doctor.findById(appointment.doctorId);
+    if (doctorUser && doctorUser.userId) {
+      await Notification.create({
+        receiverId: doctorUser.userId,
+        senderId: userId,
+        title: 'Appointment Cancelled',
+        message: `A patient has cancelled their appointment on ${appointment.date} at ${appointment.time}.`,
+        type: 'appointment',
+        relatedId: appointment._id,
+        onModel: 'Appointment',
+        isRead: false
+      });
+    }
 
     res.status(200).json({
       success: true,

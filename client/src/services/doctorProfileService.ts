@@ -18,6 +18,9 @@ export const doctorProfileService = {
   getAppointmentDetails: (appointmentId) =>
     api.get(`/doctor/appointments/${appointmentId}`).then(r => r.data),
 
+  updateAppointmentStatus: (appointmentId, status) =>
+    api.put(`/doctor/appointments/${appointmentId}/status`, { status }).then(r => r.data),
+
   // Prescriptions
   createPrescription: (data) =>
     api.post('/doctor/prescriptions', data).then(r => r.data),

@@ -5,6 +5,7 @@ import Payment from '../models/Payment.js';
 import AppointmentReminder from '../models/AppointmentReminder.js';
 import User from '../models/User.js';
 import Doctor from '../models/Doctor.js';
+import Notification from '../models/Notification.js';
 
 const buildExperienceLabel = (years) => {
   if (typeof years === 'number' && !Number.isNaN(years)) {
@@ -233,6 +234,31 @@ export const getDoctorAppointments = async (req, res) => {
       .populate('userId', 'name email phone')
       .populate('doctorId', 'name specialization')
       .sort({ date: -1, time: -1 });
+
+    const today = new Date().toISOString().split('T')[0];
+    const todaysAppointments = appointments.filter(a => a.date === today && a.status === 'Booked');
+
+    for (const apt of todaysAppointments) {
+      if (apt.userId && apt.userId._id) {
+        const existing = await Notification.findOne({
+          receiverId: doctor.userId,
+          relatedId: apt._id,
+          type: 'appointment_reminder'
+        });
+        if (!existing) {
+          await Notification.create({
+            receiverId: doctor.userId,
+            senderId: apt.userId._id,
+            title: 'Appointment Today',
+            message: `Reminder: You have an appointment with patient ${apt.userId.name || 'Unknown'} today at ${apt.time}.`,
+            type: 'appointment_reminder',
+            relatedId: apt._id,
+            onModel: 'Appointment',
+            isRead: false
+          });
+        }
+      }
+    }
     
     res.status(200).json({
       success: true,
@@ -284,6 +310,80 @@ export const getAppointmentDetails = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching appointment',
+      error: error.message
+    });
+  }
+};
+
+export const updateAppointmentStatus = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const { status } = req.body;
+    const doctorId = req.user.id;
+    const context = await getDoctorContext(doctorId);
+
+    if (context.error) {
+      return res.status(context.error.status).json({
+        success: false,
+        message: context.error.message
+      });
+    }
+
+    const { doctor } = context;
+
+    if (!['Pending', 'Booked', 'Cancelled', 'Completed', 'Rejected'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status'
+      });
+    }
+
+    const appointment = await Appointment.findOne({
+      _id: appointmentId,
+      doctorId: doctor._id
+    }).populate('doctorId', 'name specialization');
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
+      });
+    }
+
+    appointment.status = status;
+    await appointment.save();
+
+    // Create a Notification if logic dictates
+    let title = '';
+    let message = '';
+    if (status === 'Booked') {
+      title = 'Appointment Accepted';
+      message = `Your appointment with Dr. ${appointment.doctorId.name} on ${appointment.date} at ${appointment.time} has been accepted.`;
+    } else if (status === 'Rejected') {
+      title = 'Appointment Rejected';
+      message = `Your appointment with Dr. ${appointment.doctorId.name} on ${appointment.date} at ${appointment.time} was rejected. Please select a different time or doctor.`;
+    }
+
+    if (title) {
+      await Notification.create({
+        receiverId: appointment.userId,
+        senderId: doctor._id,
+        title,
+        message,
+        type: 'appointment',
+        isRead: false
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment status updated successfully',
+      data: appointment
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error updating appointment status',
       error: error.message
     });
   }

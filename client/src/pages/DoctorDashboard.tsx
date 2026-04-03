@@ -8,6 +8,7 @@ import PatientSummary from '../components/doctor/patient-summary'
 import PrescriptionManagement from '../components/doctor/prescription-management'
 import HealthRecordsManagement from '../components/doctor/health-records-management'
 import PaymentManagement from '../components/doctor/payment-management'
+import { Calendar, TrendingUp, CheckCircle, Users, Pill, ClipboardList, DollarSign, Star } from 'lucide-react'
 import { Card, CardContent } from '../components/ui/card'
 import { doctorProfileService } from '../services/doctorProfileService'
 
@@ -120,12 +121,6 @@ export default function DoctorDashboard() {
                   <h1 className="text-3xl font-bold mb-2">Welcome, Dr. {user?.name}</h1>
                   <p className="text-text-secondary">Here's your practice overview</p>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90"
-                >
-                  Logout
-                </button>
               </div>
 
               {error && (
@@ -143,7 +138,7 @@ export default function DoctorDashboard() {
                   <Card className="bg-blue-50 border-blue-200">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-3xl mb-2">📅</div>
+                        <div className="flex justify-center mb-2 text-blue-600"><Calendar className="w-8 h-8" /></div>
                         <p className="text-2xl font-bold text-blue-700">{stats.totalAppointments}</p>
                         <p className="text-sm text-blue-600">Total Appointments</p>
                       </div>
@@ -153,7 +148,7 @@ export default function DoctorDashboard() {
                   <Card className="bg-green-50 border-green-200">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-3xl mb-2">⏭️</div>
+                        <div className="flex justify-center mb-2 text-green-600"><TrendingUp className="w-8 h-8" /></div>
                         <p className="text-2xl font-bold text-green-700">{stats.upcomingAppointments}</p>
                         <p className="text-sm text-green-600">Upcoming</p>
                       </div>
@@ -163,7 +158,7 @@ export default function DoctorDashboard() {
                   <Card className="bg-purple-50 border-purple-200">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-3xl mb-2">✓</div>
+                        <div className="flex justify-center mb-2 text-purple-600"><CheckCircle className="w-8 h-8" /></div>
                         <p className="text-2xl font-bold text-purple-700">{stats.completedAppointments}</p>
                         <p className="text-sm text-purple-600">Completed</p>
                       </div>
@@ -173,7 +168,7 @@ export default function DoctorDashboard() {
                   <Card className="bg-orange-50 border-orange-200">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-3xl mb-2">👥</div>
+                        <div className="flex justify-center mb-2 text-orange-600"><Users className="w-8 h-8" /></div>
                         <p className="text-2xl font-bold text-orange-700">{stats.totalPatients}</p>
                         <p className="text-sm text-orange-600">Total Patients</p>
                       </div>
@@ -183,7 +178,7 @@ export default function DoctorDashboard() {
                   <Card className="bg-yellow-50 border-yellow-200">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-3xl mb-2">💊</div>
+                        <div className="flex justify-center mb-2 text-yellow-600"><Pill className="w-8 h-8" /></div>
                         <p className="text-2xl font-bold text-yellow-700">{stats.totalPrescriptions}</p>
                         <p className="text-sm text-yellow-600">Prescriptions</p>
                       </div>
@@ -193,7 +188,7 @@ export default function DoctorDashboard() {
                   <Card className="bg-cyan-50 border-cyan-200">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-3xl mb-2">📋</div>
+                        <div className="flex justify-center mb-2 text-cyan-600"><ClipboardList className="w-8 h-8" /></div>
                         <p className="text-2xl font-bold text-cyan-700">{stats.totalHealthRecords}</p>
                         <p className="text-sm text-cyan-600">Health Records</p>
                       </div>
@@ -203,7 +198,7 @@ export default function DoctorDashboard() {
                   <Card className="bg-emerald-50 border-emerald-200">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-3xl mb-2">💰</div>
+                        <div className="flex justify-center mb-2 text-emerald-600"><DollarSign className="w-8 h-8" /></div>
                         <p className="text-2xl font-bold text-emerald-700">${stats.totalEarnings.toFixed(2)}</p>
                         <p className="text-sm text-emerald-600">Total Earnings</p>
                       </div>
@@ -213,7 +208,7 @@ export default function DoctorDashboard() {
                   <Card className="bg-pink-50 border-pink-200">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-3xl mb-2">⭐</div>
+                        <div className="flex justify-center mb-2 text-pink-600"><Star className="w-8 h-8" /></div>
                         <p className="text-2xl font-bold text-pink-700">{stats.rating.toFixed(1)}</p>
                         <p className="text-sm text-pink-600">Rating</p>
                       </div>

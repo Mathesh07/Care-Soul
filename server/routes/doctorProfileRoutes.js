@@ -12,7 +12,8 @@ import {
   getPatientHealthRecords,
   getPayments,
   createAppointmentReminder,
-  getDoctorDashboardStats
+  getDoctorDashboardStats,
+  updateAppointmentStatus
 } from '../controllers/doctorProfileController.js';
 
 const router = express.Router();
@@ -28,6 +29,7 @@ router.put('/profile/me', updateDoctorProfile);
 // ========================== APPOINTMENTS ==========================
 router.get('/appointments', getDoctorAppointments);
 router.get('/appointments/:appointmentId', getAppointmentDetails);
+router.put('/appointments/:appointmentId/status', updateAppointmentStatus);
 
 // ========================== PRESCRIPTIONS ==========================
 router.post('/prescriptions', createPrescription);

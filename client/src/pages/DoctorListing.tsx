@@ -86,14 +86,14 @@ const DoctorListing = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-10">
           <h1 className="text-4xl font-bold text-foreground">Find a Doctor</h1>
           <p className="text-foreground/60 mt-2">Browse through our network of healthcare professionals</p>
         </div>
-        
+
         {/* Search Filters */}
         <Card className="mb-10 overflow-hidden border border-primary/20 shadow-lg shadow-primary/5">
           <div className="h-1.5 bg-gradient-to-r from-primary via-accent to-primary" />
@@ -112,8 +112,8 @@ const DoctorListing = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-              <div className="space-y-2 lg:col-span-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 w-full">
+              <div className="lg:col-span-4 space-y-2">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-foreground/65">
                   Location
                 </label>
@@ -129,12 +129,12 @@ const DoctorListing = () => {
                         void handleSearch();
                       }
                     }}
-                    className="w-full rounded-xl border border-border/80 bg-background px-4 py-3 pl-10 text-foreground outline-none transition-all placeholder:text-foreground/40 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="w-full h-[48px] rounded-xl border border-border/80 bg-background px-4 py-3 pl-10 text-foreground outline-none transition-all placeholder:text-foreground/40 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2 lg:col-span-4">
+              <div className="lg:col-span-4 space-y-2">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-foreground/65">
                   Specialization
                 </label>
@@ -150,21 +150,21 @@ const DoctorListing = () => {
                         void handleSearch();
                       }
                     }}
-                    className="w-full rounded-xl border border-border/80 bg-background px-4 py-3 pl-10 text-foreground outline-none transition-all placeholder:text-foreground/40 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="w-full h-[48px] rounded-xl border border-border/80 bg-background px-4 py-3 pl-10 text-foreground outline-none transition-all placeholder:text-foreground/40 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-4 lg:items-end">
+              <div className="lg:col-span-4 grid grid-cols-2 gap-3 self-end pb-[1px]">
                 <Button
                   onClick={handleSearch}
                   disabled={searching}
-                  className="h-11 gap-2 rounded-xl bg-gradient-to-r from-primary to-blue-500 text-white shadow-md shadow-primary/20"
+                  className="w-full h-[48px] gap-2 rounded-xl bg-gradient-to-r from-primary to-blue-500 text-white shadow-md shadow-primary/20 flex items-center justify-center p-0"
                 >
                   {searching ? (
                     <>
                       <Loader className="h-4 w-4 animate-spin" />
-                      Searching...
+                      Wait...
                     </>
                   ) : (
                     <>
@@ -181,10 +181,12 @@ const DoctorListing = () => {
                     void fetchDoctors();
                   }}
                   variant="outline"
-                  className="h-11 rounded-xl border-primary/30 text-primary hover:bg-primary/5"
+                  className="w-full h-[48px] rounded-xl border-primary/30 text-primary hover:bg-primary/5 flex items-center justify-center p-0"
                 >
                   Reset
                 </Button>
+              </div>
+              <div>
               </div>
             </div>
 
@@ -224,7 +226,7 @@ const DoctorListing = () => {
                 <Card key={doctor._id} className="flex flex-col overflow-hidden hover:scale-105 transition-transform duration-300">
                   <CardContent className="p-0 flex-1 flex flex-col">
                     <div className="h-2 bg-gradient-to-r from-primary to-accent" />
-                    
+
                     <div className="p-6 flex-1 flex flex-col">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
@@ -238,7 +240,7 @@ const DoctorListing = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="space-y-3 mb-6 flex-1">
                         <div className="flex items-center gap-2 text-foreground/70 text-sm">
                           <MapPin className="h-4 w-4 flex-shrink-0 text-primary/60" />
@@ -251,7 +253,7 @@ const DoctorListing = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       {doctor.availableSlots.length > 0 && (
                         <div className="mb-6">
                           <p className="text-xs font-semibold text-foreground/60 mb-2 uppercase tracking-wider">Available Slots</p>
@@ -270,9 +272,9 @@ const DoctorListing = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="border-t border-border/50 p-6 pt-6">
-                      <Button 
+                      <Button
                         onClick={() => handleBookAppointment(doctor._id)}
                         className="w-full"
                       >
