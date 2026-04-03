@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from "react-router-dom"
 import { ThemeProvider } from "./components/theme-provider"
 import { RoleProvider } from "./components/role-provider"
 import { AuthProvider } from "./contexts/AuthContext"
@@ -8,8 +8,8 @@ import Home from "./pages/Home"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import VerifyOtp from "./pages/VerifyOtp"
-import PatientPortal from "./pages/PatientPortal"
 import DoctorDashboard from "./pages/DoctorDashboard"
+import DoctorProfile from "./pages/DoctorProfile"
 import Demo from "./pages/Demo"
 import Dashboard from "./pages/Dashboard"
 import DoctorListing from "./pages/DoctorListing"
@@ -19,6 +19,17 @@ import VideoConsultation from "./pages/VideoConsultation"
 import EmergencyPage from "./pages/EmergencyPage"
 import NotificationsPage from "./pages/NotificationsPage"
 import AdminDashboard from "./pages/AdminDashboard"
+import Profile from "./pages/Profile"
+
+function LegacyPatientAppointmentRedirect() {
+  const { doctorId } = useParams()
+  return <Navigate to={`/patient/book-appointment/${doctorId || ""}`} replace />
+}
+
+function LegacyPatientConsultationRedirect() {
+  const { appointmentId } = useParams()
+  return <Navigate to={`/patient/consultation/${appointmentId || ""}`} replace />
+}
 
 function App() {
   return (
@@ -37,14 +48,67 @@ function App() {
                   <Route path="/demo" element={<Demo />} />
 
                   {/* Protected Routes */}
-                  <Route path="/dashboard" element={
-                    <ProtectedRoute>
+                  <Route path="/patient" element={<Navigate to="/patient/dashboard" replace />} />
+                  <Route path="/patient/dashboard" element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
                       <Dashboard />
                     </ProtectedRoute>
                   } />
-                  <Route path="/doctor-dashboard" element={
-                    <ProtectedRoute>
+                  <Route path="/patient/profile" element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <Profile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/patient/book-appointment/:doctorId" element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <BookAppointment />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/patient/my-appointments" element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <MyAppointments />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/patient/doctors" element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <DoctorListing />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/patient/emergency" element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <EmergencyPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/patient/consultation/:appointmentId" element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <VideoConsultation />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/patient/notifications" element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <NotificationsPage />
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/doctor" element={<Navigate to="/doctor/dashboard" replace />} />
+                  <Route path="/doctor/dashboard" element={
+                    <ProtectedRoute allowedRoles={["doctor"]}>
                       <DoctorDashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/doctor/:tab" element={
+                    <ProtectedRoute allowedRoles={["doctor"]}>
+                      <DoctorDashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/doctor/profile" element={
+                    <ProtectedRoute allowedRoles={["doctor"]}>
+                      <DoctorProfile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/doctor/consultation/:appointmentId" element={
+                    <ProtectedRoute allowedRoles={["doctor"]}>
+                      <VideoConsultation />
                     </ProtectedRoute>
                   } />
                   <Route path="/admin" element={
@@ -52,41 +116,17 @@ function App() {
                       <AdminDashboard />
                     </ProtectedRoute>
                   } />
-                  <Route path="/book-appointment/:doctorId" element={
-                    <ProtectedRoute>
-                      <BookAppointment />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/my-appointments" element={
-                    <ProtectedRoute>
-                      <MyAppointments />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/doctors" element={
-                    <ProtectedRoute>
-                      <DoctorListing />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/emergency" element={
-                    <ProtectedRoute>
-                      <EmergencyPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/consultation/:appointmentId" element={
-                    <ProtectedRoute>
-                      <VideoConsultation />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/notifications" element={
-                    <ProtectedRoute>
-                      <NotificationsPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/patient-portal" element={
-                    <ProtectedRoute>
-                      <PatientPortal />
-                    </ProtectedRoute>
-                  } />
+                  {/* Legacy route redirects */}
+                  <Route path="/dashboard" element={<Navigate to="/patient/dashboard" replace />} />
+                  <Route path="/profile" element={<Navigate to="/patient/profile" replace />} />
+                  <Route path="/book-appointment/:doctorId" element={<LegacyPatientAppointmentRedirect />} />
+                  <Route path="/my-appointments" element={<Navigate to="/patient/my-appointments" replace />} />
+                  <Route path="/doctors" element={<Navigate to="/patient/doctors" replace />} />
+                  <Route path="/emergency" element={<Navigate to="/patient/emergency" replace />} />
+                  <Route path="/consultation/:appointmentId" element={<LegacyPatientConsultationRedirect />} />
+                  <Route path="/notifications" element={<Navigate to="/patient/notifications" replace />} />
+                  <Route path="/doctor-dashboard" element={<Navigate to="/doctor/dashboard" replace />} />
+                  <Route path="/doctor-profile" element={<Navigate to="/doctor/profile" replace />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </div>

@@ -63,7 +63,7 @@ const Dashboard = () => {
 
   const handleSignOut = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const formatDate = (dateString: string) => {
@@ -107,11 +107,11 @@ const Dashboard = () => {
               <p className="text-base md:text-lg text-foreground/70 mt-2">Track appointments, health activities, and emergency actions from one place.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button className="gap-2" onClick={() => navigate('/doctors')}>
+              <Button className="gap-2" onClick={() => navigate('/patient/doctors')}>
                 <Calendar className="h-4 w-4" />
                 Book Appointment
               </Button>
-              <Button variant="outline" className="gap-2" onClick={() => navigate('/emergency')}>
+              <Button variant="outline" className="gap-2" onClick={() => navigate('/patient/emergency')}>
                 <Activity className="h-4 w-4" />
                 Emergency
               </Button>
@@ -198,7 +198,7 @@ const Dashboard = () => {
                 )}
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full" onClick={() => navigate('/my-appointments')}>
+                <Button variant="outline" className="w-full" onClick={() => navigate('/patient/my-appointments')}>
                   View All Appointments
                 </Button>
               </CardFooter>

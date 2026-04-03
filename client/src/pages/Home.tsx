@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react"
-import { Navbar } from "../components/ui/navbar"
 import { Footer } from "../components/ui/footer"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
+import { Link } from "react-router-dom"
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -67,8 +67,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-
       <main className="flex-1">
         <section className="bg-hero-gradient text-white py-16 md:py-24 animate-fade-in transition-colors duration-300 border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -80,11 +78,11 @@ export default function Home() {
                   online, and manage your health records—all in one place.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" variant="default">
-                    Get Started Free
+                  <Button size="lg" variant="default" asChild>
+                    <Link to="/register">Get Started Free</Link>
                   </Button>
-                  <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-foreground/5">
-                    Watch Demo
+                  <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-foreground/5" asChild>
+                    <Link to="/login">Sign In</Link>
                   </Button>
                 </div>
               </div>

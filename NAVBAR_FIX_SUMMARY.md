@@ -120,15 +120,15 @@ Added deprecation notices:
 ## Testing Recommendations
 
 1. **Scenario: Doctor page refresh**
-   - Navigate to /doctor-dashboard as doctor
+   - Navigate to /doctor/dashboard as doctor
    - Refresh page → Should show DoctorNavbar with doctor tabs ✓
 
 2. **Scenario: Patient page refresh**
-   - Navigate to /patient-portal as patient
+   - Navigate to /patient/dashboard as patient
    - Refresh page → Should show PatientNavbar with patient tabs ✓
 
 3. **Scenario: Wrong role access attempt**
-   - Try accessing /doctor-dashboard as patient
+   - Try accessing /doctor/dashboard as patient
    - Should redirect to /login (page protection) ✓
 
 4. **Scenario: Multiple role switching**

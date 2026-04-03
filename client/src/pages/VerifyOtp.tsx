@@ -61,10 +61,10 @@ const VerifyOtp = () => {
         
         if (token && user) {
           login(token, user);
-          const nextRoute = user.role === 'doctor' ? '/doctor-dashboard' : '/dashboard';
+          const nextRoute = user.role === 'doctor' ? '/doctor/dashboard' : '/patient/dashboard';
           setTimeout(() => navigate(nextRoute), 1500);
         } else {
-          setTimeout(() => navigate('/dashboard'), 1500);
+          setTimeout(() => navigate('/patient/dashboard'), 1500);
         }
       } else {
         setSuccess('');

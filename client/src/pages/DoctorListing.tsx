@@ -67,7 +67,7 @@ const DoctorListing = () => {
   };
 
   const handleBookAppointment = (doctorId: string) => {
-    navigate(`/book-appointment/${doctorId}`);
+    navigate(`/patient/book-appointment/${doctorId}`);
   };
 
   if (loading) {

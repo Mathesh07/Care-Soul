@@ -4,25 +4,75 @@ import HealthRecord from '../models/HealthRecord.js';
 import Payment from '../models/Payment.js';
 import AppointmentReminder from '../models/AppointmentReminder.js';
 import User from '../models/User.js';
+import Doctor from '../models/Doctor.js';
+
+const buildExperienceLabel = (years) => {
+  if (typeof years === 'number' && !Number.isNaN(years)) {
+    return `${years} years`;
+  }
+  if (typeof years === 'string') {
+    return years;
+  }
+  return '';
+};
+
+const getDoctorContext = async (userId) => {
+  const user = await User.findById(userId);
+
+  if (!user || user.role !== 'doctor') {
+    return { error: { status: 404, message: 'Doctor profile not found' } };
+  }
+
+  let doctor = await Doctor.findOne({ userId: user._id });
+
+  if (!doctor) {
+    const location = user.address || 'Unknown';
+    const experience = buildExperienceLabel(user.yearsOfExperience) || '';
+    const specialization = user.specialization || 'General';
+    const phone = user.phone || '';
+
+    doctor = await Doctor.create({
+      userId: user._id,
+      name: user.name,
+      specialization,
+      location,
+      email: user.email,
+      phone,
+      experience,
+      isVerified: user.isDocterVerifiedByAdmin === true
+    });
+  }
+
+  return { user, doctor };
+};
 
 // ========================== DOCTOR PROFILE ==========================
 export const getDoctorProfile = async (req, res) => {
   try {
     const doctorId = req.user.id;
-    
-    // Find doctor in User model where role is doctor
-    const doctor = await User.findById(doctorId);
-    
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({
+    const context = await getDoctorContext(doctorId);
+
+    if (context.error) {
+      return res.status(context.error.status).json({
         success: false,
-        message: 'Doctor profile not found'
+        message: context.error.message
       });
     }
-    
+
+    const { user, doctor } = context;
+
     res.status(200).json({
       success: true,
-      data: doctor
+      data: {
+        ...doctor.toObject(),
+        name: doctor.name || user.name,
+        email: doctor.email || user.email,
+        phone: doctor.phone || user.phone,
+        specialization: doctor.specialization || user.specialization,
+        location: doctor.location || user.address,
+        accountStatus: user.accountStatus,
+        role: user.role
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -36,27 +86,58 @@ export const getDoctorProfile = async (req, res) => {
 export const createDoctorProfile = async (req, res) => {
   try {
     const doctorId = req.user.id;
-    const { specialization, yearsOfExperience, address, phone } = req.body;
-    
-    // Update doctor profile in User model
-    const doctor = await User.findByIdAndUpdate(
-      doctorId,
-      {
-        specialization,
-        yearsOfExperience,
-        address,
-        phone
-      },
-      { new: true }
-    );
-    
-    if (!doctor) {
+    const { name, specialization, yearsOfExperience, address, phone, location, availableSlots, experience, bio } = req.body;
+
+    const user = await User.findById(doctorId);
+    if (!user || user.role !== 'doctor') {
       return res.status(404).json({
         success: false,
         message: 'Doctor not found'
       });
     }
-    
+
+    const nextExperience = experience || buildExperienceLabel(yearsOfExperience) || user.yearsOfExperience;
+    const nextLocation = location || address || user.address || 'Unknown';
+    const nextName = name || user.name;
+    const nextSpecialization = specialization || user.specialization || 'General';
+    const nextPhone = phone || user.phone || '';
+
+    const doctorUpdate = {
+      userId: user._id,
+      name: nextName,
+      specialization: nextSpecialization,
+      location: nextLocation,
+      email: user.email,
+      phone: nextPhone,
+      experience: typeof nextExperience === 'number' ? buildExperienceLabel(nextExperience) : nextExperience,
+      isVerified: user.isDocterVerifiedByAdmin === true
+    };
+
+    if (Array.isArray(availableSlots)) {
+      doctorUpdate.availableSlots = availableSlots;
+    }
+
+    if (typeof bio === 'string') {
+      doctorUpdate.bio = bio;
+    }
+
+    const doctor = await Doctor.findOneAndUpdate(
+      { userId: user._id },
+      doctorUpdate,
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+
+    const userUpdate = {};
+    if (name) userUpdate.name = name;
+    if (specialization) userUpdate.specialization = specialization;
+    if (typeof yearsOfExperience === 'number') userUpdate.yearsOfExperience = yearsOfExperience;
+    if (address) userUpdate.address = address;
+    if (phone) userUpdate.phone = phone;
+
+    if (Object.keys(userUpdate).length > 0) {
+      await User.findByIdAndUpdate(user._id, userUpdate);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Doctor profile created successfully',
@@ -74,27 +155,50 @@ export const createDoctorProfile = async (req, res) => {
 export const updateDoctorProfile = async (req, res) => {
   try {
     const doctorId = req.user.id;
-    const { name, specialization, yearsOfExperience, address, phone } = req.body;
-    
-    const doctor = await User.findByIdAndUpdate(
-      doctorId,
-      {
-        name,
-        specialization,
-        yearsOfExperience,
-        address,
-        phone
-      },
-      { new: true }
-    );
-    
-    if (!doctor) {
+    const { name, specialization, yearsOfExperience, address, phone, location, availableSlots, experience, bio } = req.body;
+
+    const user = await User.findById(doctorId);
+    if (!user || user.role !== 'doctor') {
       return res.status(404).json({
         success: false,
         message: 'Doctor profile not found'
       });
     }
-    
+
+    const doctorUpdate = {
+      email: user.email,
+      isVerified: user.isDocterVerifiedByAdmin === true
+    };
+
+    if (name) doctorUpdate.name = name;
+    if (specialization) doctorUpdate.specialization = specialization;
+    if (location || address) doctorUpdate.location = location || address;
+    if (phone) doctorUpdate.phone = phone;
+    if (typeof yearsOfExperience === 'number') {
+      doctorUpdate.experience = buildExperienceLabel(yearsOfExperience);
+    } else if (experience) {
+      doctorUpdate.experience = experience;
+    }
+    if (Array.isArray(availableSlots)) doctorUpdate.availableSlots = availableSlots;
+    if (typeof bio === 'string') doctorUpdate.bio = bio;
+
+    const doctor = await Doctor.findOneAndUpdate(
+      { userId: user._id },
+      doctorUpdate,
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+
+    const userUpdate = {};
+    if (name) userUpdate.name = name;
+    if (specialization) userUpdate.specialization = specialization;
+    if (typeof yearsOfExperience === 'number') userUpdate.yearsOfExperience = yearsOfExperience;
+    if (address) userUpdate.address = address;
+    if (phone) userUpdate.phone = phone;
+
+    if (Object.keys(userUpdate).length > 0) {
+      await User.findByIdAndUpdate(user._id, userUpdate);
+    }
+
     res.status(200).json({
       success: true,
       message: 'Doctor profile updated successfully',
@@ -113,19 +217,19 @@ export const updateDoctorProfile = async (req, res) => {
 export const getDoctorAppointments = async (req, res) => {
   try {
     const doctorId = req.user.id;
-    
-    // Verify the user is a doctor
-    const doctor = await User.findById(doctorId);
-    
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({
+    const context = await getDoctorContext(doctorId);
+
+    if (context.error) {
+      return res.status(context.error.status).json({
         success: false,
-        message: 'Doctor profile not found'
+        message: context.error.message
       });
     }
-    
-    // Get appointments for this doctor (using user ID as doctorId in appointments)
-    const appointments = await Appointment.find({ doctorId })
+
+    const { doctor } = context;
+
+    // Get appointments for this doctor
+    const appointments = await Appointment.find({ doctorId: doctor._id })
       .populate('userId', 'name email phone')
       .populate('doctorId', 'name specialization')
       .sort({ date: -1, time: -1 });
@@ -147,10 +251,20 @@ export const getAppointmentDetails = async (req, res) => {
   try {
     const { appointmentId } = req.params;
     const doctorId = req.user.id;
-    
+    const context = await getDoctorContext(doctorId);
+
+    if (context.error) {
+      return res.status(context.error.status).json({
+        success: false,
+        message: context.error.message
+      });
+    }
+
+    const { doctor } = context;
+
     const appointment = await Appointment.findOne({
       _id: appointmentId,
-      doctorId
+      doctorId: doctor._id
     })
       .populate('userId', 'name email phone')
       .populate('doctorId', 'name specialization');
@@ -180,15 +294,16 @@ export const createPrescription = async (req, res) => {
   try {
     const doctorId = req.user.id;
     const { appointmentId, medications, notes } = req.body;
-    
-    // Verify doctor exists
-    const doctor = await User.findById(doctorId);
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({
+
+    const context = await getDoctorContext(doctorId);
+    if (context.error) {
+      return res.status(context.error.status).json({
         success: false,
-        message: 'Doctor profile not found'
+        message: context.error.message
       });
     }
+
+    const { doctor } = context;
     
     const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
@@ -197,11 +312,18 @@ export const createPrescription = async (req, res) => {
         message: 'Appointment not found'
       });
     }
+
+    if (appointment.doctorId.toString() !== doctor._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only create prescriptions for your own appointments'
+      });
+    }
     
     const prescription = new Prescription({
       appointmentId,
       patientId: appointment.userId,
-      doctorId,
+      doctorId: doctor._id,
       medications,
       notes
     });
@@ -225,17 +347,18 @@ export const createPrescription = async (req, res) => {
 export const getPrescriptions = async (req, res) => {
   try {
     const doctorId = req.user.id;
-    
-    // Verify doctor exists
-    const doctor = await User.findById(doctorId);
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({
+    const context = await getDoctorContext(doctorId);
+
+    if (context.error) {
+      return res.status(context.error.status).json({
         success: false,
-        message: 'Doctor profile not found'
+        message: context.error.message
       });
     }
-    
-    const prescriptions = await Prescription.find({ doctorId })
+
+    const { doctor } = context;
+
+    const prescriptions = await Prescription.find({ doctorId: doctor._id })
       .populate('patientId', 'name email')
       .populate('appointmentId')
       .sort({ issuedAt: -1 });
@@ -258,19 +381,20 @@ export const createHealthRecord = async (req, res) => {
   try {
     const doctorId = req.user.id;
     const { patientId, appointmentId, recordType, title, description, vitals, diagnosis, testResults, recommendations } = req.body;
-    
-    // Verify doctor exists
-    const doctor = await User.findById(doctorId);
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({
+
+    const context = await getDoctorContext(doctorId);
+    if (context.error) {
+      return res.status(context.error.status).json({
         success: false,
-        message: 'Doctor profile not found'
+        message: context.error.message
       });
     }
+
+    const { doctor } = context;
     
     const healthRecord = new HealthRecord({
       patientId,
-      doctorId,
+      doctorId: doctor._id,
       appointmentId,
       recordType,
       title,
@@ -301,19 +425,20 @@ export const getPatientHealthRecords = async (req, res) => {
   try {
     const { patientId } = req.params;
     const doctorId = req.user.id;
-    
-    // Verify doctor exists
-    const doctor = await User.findById(doctorId);
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({
+    const context = await getDoctorContext(doctorId);
+
+    if (context.error) {
+      return res.status(context.error.status).json({
         success: false,
-        message: 'Doctor profile not found'
+        message: context.error.message
       });
     }
-    
+
+    const { doctor } = context;
+
     const healthRecords = await HealthRecord.find({
       patientId,
-      doctorId
+      doctorId: doctor._id
     }).sort({ createdAt: -1 });
     
     res.status(200).json({
@@ -333,17 +458,18 @@ export const getPatientHealthRecords = async (req, res) => {
 export const getPayments = async (req, res) => {
   try {
     const doctorId = req.user.id;
-    
-    // Verify doctor exists
-    const doctor = await User.findById(doctorId);
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({
+    const context = await getDoctorContext(doctorId);
+
+    if (context.error) {
+      return res.status(context.error.status).json({
         success: false,
-        message: 'Doctor profile not found'
+        message: context.error.message
       });
     }
-    
-    const payments = await Payment.find({ doctorId })
+
+    const { doctor } = context;
+
+    const payments = await Payment.find({ doctorId: doctor._id })
       .populate('patientId', 'name email')
       .populate('appointmentId')
       .sort({ createdAt: -1 });
@@ -378,21 +504,29 @@ export const createAppointmentReminder = async (req, res) => {
   try {
     const doctorId = req.user.id;
     const { appointmentId, patientId, reminderType, minutesBefore, message } = req.body;
-    
-    // Verify doctor exists
-    const doctor = await User.findById(doctorId);
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({
+
+    const context = await getDoctorContext(doctorId);
+    if (context.error) {
+      return res.status(context.error.status).json({
         success: false,
-        message: 'Doctor profile not found'
+        message: context.error.message
       });
     }
+
+    const { doctor } = context;
     
     const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
       return res.status(404).json({
         success: false,
         message: 'Appointment not found'
+      });
+    }
+
+    if (appointment.doctorId.toString() !== doctor._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only create reminders for your own appointments'
       });
     }
     
@@ -403,7 +537,7 @@ export const createAppointmentReminder = async (req, res) => {
     const reminder = new AppointmentReminder({
       appointmentId,
       patientId,
-      doctorId,
+      doctorId: doctor._id,
       reminderType,
       sendAt,
       minutesBefore,
@@ -430,16 +564,17 @@ export const createAppointmentReminder = async (req, res) => {
 export const getDoctorDashboardStats = async (req, res) => {
   try {
     const doctorId = req.user.id;
-    
-    // Verify doctor exists
-    const doctor = await User.findById(doctorId);
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({
+    const context = await getDoctorContext(doctorId);
+
+    if (context.error) {
+      return res.status(context.error.status).json({
         success: false,
-        message: 'Doctor profile not found'
+        message: context.error.message
       });
     }
-    
+
+    const { doctor } = context;
+
     const [
       totalAppointments,
       upcomingAppointments,
@@ -449,17 +584,17 @@ export const getDoctorDashboardStats = async (req, res) => {
       totalPatients,
       payments
     ] = await Promise.all([
-      Appointment.countDocuments({ doctorId }),
+      Appointment.countDocuments({ doctorId: doctor._id }),
       Appointment.countDocuments({ 
-        doctorId, 
+        doctorId: doctor._id, 
         date: { $gte: new Date().toISOString().split('T')[0] },
         status: 'Booked'
       }),
-      Appointment.countDocuments({ doctorId, status: 'Completed' }),
-      Prescription.countDocuments({ doctorId }),
-      HealthRecord.countDocuments({ doctorId }),
-      Appointment.distinct('userId', { doctorId }),
-      Payment.find({ doctorId, status: 'completed' })
+      Appointment.countDocuments({ doctorId: doctor._id, status: 'Completed' }),
+      Prescription.countDocuments({ doctorId: doctor._id }),
+      HealthRecord.countDocuments({ doctorId: doctor._id }),
+      Appointment.distinct('userId', { doctorId: doctor._id }),
+      Payment.find({ doctorId: doctor._id, status: 'completed' })
     ]);
     
     const totalEarnings = payments.reduce((sum, p) => sum + p.amount, 0);

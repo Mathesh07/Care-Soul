@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import RoleBasedNavbar from '../components/ui/role-based-navbar'
 import AppointmentsList from '../components/doctor/appointments-list'
@@ -24,7 +24,7 @@ interface DashboardStats {
 
 export default function DoctorDashboard() {
   const navigate = useNavigate()
-  const location = useLocation()
+  const { tab } = useParams()
   const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState<'dashboard' | 'appointments' | 'patients' | 'records' | 'operations'>('dashboard')
   const [stats, setStats] = useState<DashboardStats | null>(null)
@@ -51,17 +51,19 @@ export default function DoctorDashboard() {
   }, [user, navigate])
 
   useEffect(() => {
-    const hash = location.hash.replace('#', '')
-    if (hash && isValidTab(hash) && hash !== activeTab) {
-      setActiveTab(hash)
+    if (!tab) {
+      return
     }
-  }, [location.hash, activeTab])
 
-  useEffect(() => {
-    if (!location.hash) {
-      window.history.replaceState(null, '', `${location.pathname}#${activeTab}`)
+    if (!isValidTab(tab)) {
+      navigate('/doctor/dashboard', { replace: true })
+      return
     }
-  }, [activeTab, location.pathname, location.hash])
+
+    if (tab !== activeTab) {
+      setActiveTab(tab)
+    }
+  }, [tab, activeTab, navigate])
 
   const fetchDashboardStats = async () => {
     try {
@@ -81,7 +83,7 @@ export default function DoctorDashboard() {
 
   const handleLogout = () => {
     logout()
-    navigate('/login')
+    navigate('/')
   }
 
   if (!user || user.role !== 'doctor') {

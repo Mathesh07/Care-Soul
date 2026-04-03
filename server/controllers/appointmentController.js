@@ -1,6 +1,21 @@
 import Appointment from '../models/Appointment.js';
 import Doctor from '../models/Doctor.js';
 
+const normalizeTimeSlot = (slot) => {
+  if (!slot) return '';
+  const trimmed = String(slot).trim();
+  if (/^\d{2}:\d{2}$/.test(trimmed)) return trimmed;
+  const match = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return '';
+  const hour = Number(match[1]);
+  const minute = match[2];
+  const period = match[3].toUpperCase();
+  const normalizedHour = period === 'PM'
+    ? (hour === 12 ? 12 : hour + 12)
+    : (hour === 12 ? 0 : hour);
+  return `${String(normalizedHour).padStart(2, '0')}:${minute}`;
+};
+
 export const createAppointment = async (req, res) => {
   try {
     const { doctorId, date, time, notes } = req.body;
@@ -155,6 +170,60 @@ export const getAppointmentById = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching appointment',
+      error: error.message
+    });
+  }
+};
+
+export const getAvailableSlots = async (req, res) => {
+  try {
+    const { doctorId, date } = req.query;
+
+    if (!doctorId || !date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Doctor ID and date are required'
+      });
+    }
+
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found'
+      });
+    }
+
+    const existingAppointments = await Appointment.find({
+      doctorId,
+      date,
+      status: { $ne: 'Cancelled' }
+    }).select('time');
+
+    const bookedSlots = new Set(
+      existingAppointments
+        .map((apt) => normalizeTimeSlot(apt.time))
+        .filter(Boolean)
+    );
+
+    const availableSlots = (doctor.availableSlots || []).filter((slot) => {
+      const normalized = normalizeTimeSlot(slot);
+      if (!normalized) return true;
+      return !bookedSlots.has(normalized);
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        doctorId,
+        date,
+        slots: availableSlots
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching available slots',
       error: error.message
     });
   }

@@ -25,7 +25,7 @@ export default function DoctorNavbar({ activeTab, setActiveTab }: DoctorNavbarPr
 
   const handleSignOut = () => {
     logout()
-    navigate('/login')
+    navigate('/')
   }
 
   const tabs = [
