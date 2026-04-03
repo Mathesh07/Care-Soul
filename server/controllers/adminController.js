@@ -169,7 +169,33 @@ export const verifyDoctorApplication = async (req, res) => {
             return res.status(400).json({ success: false, message: "User is not a doctor" });
         }
 
-        // Update doctor verification status
+        // Create Doctor document in Doctor collection
+        const Doctor = require("../models/Doctor.js").default;
+        
+        // Check if Doctor document already exists
+        const existingDoctorDoc = await Doctor.findOne({ userId: doctor._id });
+        
+        if (!existingDoctorDoc) {
+            // Create new Doctor document
+            const newDoctor = new Doctor({
+                userId: doctor._id,
+                name: doctor.name,
+                email: doctor.email,
+                phone: doctor.phone,
+                specialization: doctor.specialization,
+                experience: doctor.yearsOfExperience?.toString() || "",
+                location: doctor.address || "Not specified",
+                isVerified: true
+            });
+            
+            await newDoctor.save();
+        } else {
+            // Update existing Doctor document to be verified
+            existingDoctorDoc.isVerified = true;
+            await existingDoctorDoc.save();
+        }
+
+        // Update doctor verification status in User collection
         doctor.isDocterVerifiedByAdmin = true;
         doctor.doctorVerifiedByAdminDate = new Date();
         doctor.accountStatus = "active";

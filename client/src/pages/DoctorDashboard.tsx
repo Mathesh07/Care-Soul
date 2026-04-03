@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import UnifiedDoctorNavbar from '../components/doctor/unified-doctor-navbar'
+import RoleBasedNavbar from '../components/ui/role-based-navbar'
 import AppointmentsList from '../components/doctor/appointments-list'
 import Consultations from '../components/doctor/consultations'
 import PatientSummary from '../components/doctor/patient-summary'
@@ -102,9 +102,10 @@ export default function DoctorDashboard() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <UnifiedDoctorNavbar 
+      <RoleBasedNavbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab}
+        isDoctorPortal={true}
       />
       
       <div className="p-6 md:p-8">

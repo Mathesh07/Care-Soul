@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Users, Calendar, Activity, AlertTriangle, CheckCircle, Trash2, Check, X, Stethoscope } from 'lucide-react';
-import { Navbar } from '../components/ui/navbar';
+import AdminNavbar from '../components/admin/admin-navbar';
 import { adminService } from '../services/adminService';
 
 // TypeScript interfaces define the "shape" of data
@@ -147,6 +147,12 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleTabChange = (tab: string) => {
+    if (tab === 'overview' || tab === 'users' || tab === 'appointments' || tab === 'doctor-verification') {
+      setActiveTab(tab);
+    }
+  };
+
   // Tab button component
   const TabButton = ({ id, label, icon: Icon }: { id: typeof activeTab, label: string, icon?: React.ReactNode }) => (
     <button
@@ -165,7 +171,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <Navbar />
+        <AdminNavbar />
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
         </div>
@@ -175,7 +181,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
+      <AdminNavbar />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-foreground mb-6">Admin Dashboard</h1>

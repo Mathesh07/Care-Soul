@@ -2,7 +2,8 @@ import Doctor from '../models/Doctor.js';
 
 export const getAllDoctors = async (req, res) => {
   try {
-    const doctors = await Doctor.find().sort({ name: 1 });
+    // Only fetch doctors that are verified
+    const doctors = await Doctor.find({ isVerified: true }).sort({ name: 1 });
     res.status(200).json({
       success: true,
       data: doctors
@@ -20,7 +21,7 @@ export const searchDoctors = async (req, res) => {
   try {
     const { location, specialization } = req.query;
     
-    let query = {};
+    let query = { isVerified: true }; // Only search verified doctors
     
     if (location) {
       query.location = { $regex: location, $options: 'i' };
