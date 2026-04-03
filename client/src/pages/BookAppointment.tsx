@@ -28,6 +28,9 @@ const BookAppointment = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [notes, setNotes] = useState('');
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState('');
 
   const normalizeTimeSlot = (slot: string) => {
     const trimmed = slot.trim();
@@ -61,6 +64,35 @@ const BookAppointment = () => {
       fetchDoctorDetails();
     }
   }, [doctorId]);
+
+  useEffect(() => {
+    const loadSlots = async () => {
+      if (!doctorId || !selectedDate) {
+        setAvailableSlots([]);
+        return;
+      }
+
+      try {
+        setSlotsLoading(true);
+        setSlotsError('');
+        const response = await appointmentService.getAvailableSlots(doctorId, selectedDate);
+        if (response.success) {
+          setAvailableSlots(response.data?.slots || []);
+        } else {
+          setAvailableSlots([]);
+          setSlotsError(response.message || 'Failed to load available slots');
+        }
+      } catch (err: any) {
+        setAvailableSlots([]);
+        setSlotsError(err.response?.data?.message || 'Failed to load available slots');
+      } finally {
+        setSlotsLoading(false);
+      }
+    };
+
+    setSelectedTime('');
+    void loadSlots();
+  }, [doctorId, selectedDate]);
 
   const fetchDoctorDetails = async () => {
     try {
@@ -102,7 +134,7 @@ const BookAppointment = () => {
       if (response.success) {
         setSuccess('Appointment booked successfully!');
         setTimeout(() => {
-          navigate('/my-appointments');
+          navigate('/patient/my-appointments');
         }, 2000);
       } else {
         setError(response.message || 'Failed to book appointment');
@@ -125,6 +157,10 @@ const BookAppointment = () => {
     return maxDate.toISOString().split('T')[0];
   };
 
+  const timeOptions = selectedDate
+    ? availableSlots
+    : doctor?.availableSlots || [];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
@@ -143,7 +179,7 @@ const BookAppointment = () => {
           <Stethoscope className="h-12 w-12 text-foreground/40 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">Doctor not found</h3>
           <button
-            onClick={() => navigate('/doctors')}
+            onClick={() => navigate('/patient/doctors')}
             className="text-primary hover:text-primary/80"
           >
             Back to doctor list
@@ -159,7 +195,7 @@ const BookAppointment = () => {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
-          onClick={() => navigate('/doctors')}
+          onClick={() => navigate('/patient/doctors')}
           className="flex items-center text-foreground/70 hover:text-foreground mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -209,7 +245,7 @@ const BookAppointment = () => {
               <div>
                 <p className="text-sm font-medium text-foreground/80 mb-2">Available Time Slots:</p>
                 <div className="grid grid-cols-3 gap-2">
-                  {doctor.availableSlots.map((slot, index) => (
+                  {(doctor.availableSlots || []).map((slot, index) => (
                     <div key={index} className="bg-foreground/5 text-foreground/70 text-xs px-2 py-1 rounded text-center">
                       {slot}
                     </div>
@@ -252,7 +288,7 @@ const BookAppointment = () => {
                   className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                 >
                   <option value="">Select a time slot</option>
-                  {doctor.availableSlots.map((slot, index) => (
+                  {timeOptions.map((slot, index) => (
                     <option
                       key={index}
                       value={normalizeTimeSlot(slot)}
@@ -262,6 +298,15 @@ const BookAppointment = () => {
                     </option>
                   ))}
                 </select>
+                {slotsLoading && (
+                  <p className="text-xs text-foreground/60 mt-2">Loading available slots...</p>
+                )}
+                {slotsError && (
+                  <p className="text-xs text-red-600 mt-2">{slotsError}</p>
+                )}
+                {!slotsLoading && selectedDate && timeOptions.length === 0 && (
+                  <p className="text-xs text-foreground/60 mt-2">No available slots for this date.</p>
+                )}
               </div>
 
               <div>

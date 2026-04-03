@@ -19,9 +19,15 @@ export function Navbar() {
     setMounted(true)
   }, [])
 
+  const profilePath = user?.role === "doctor"
+    ? "/doctor/profile"
+    : user?.role === "admin"
+      ? "/admin"
+      : "/patient/profile"
+
   const handleSignOut = () => {
     logout()
-    navigate('/login')
+    navigate('/')
   }
 
   const getAuthButtons = () => {
@@ -30,10 +36,13 @@ export function Navbar() {
         <>
           {/* User Menu */}
           <div className="flex items-center gap-2">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-secondary/50">
+            <Link
+              to={profilePath}
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-secondary/50 hover:bg-surface-secondary/70 transition-all duration-200"
+            >
               <User className="w-4 h-4 text-foreground/70" />
               <span className="text-sm font-medium text-foreground">{user.name}</span>
-            </div>
+            </Link>
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50">
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Sign Out</span>
@@ -60,16 +69,18 @@ export function Navbar() {
       return (
         <>
           <div className="flex items-center gap-2 px-4 py-2 border-t border-border mt-4">
-            <div className="flex items-center gap-2 flex-1">
+            <Link to={profilePath} className="flex items-center gap-2 flex-1">
               <User className="w-4 h-4 text-foreground/70" />
               <span className="text-sm font-medium text-foreground">{user.name}</span>
-            </div>
+            </Link>
           </div>
           
           <div className="flex gap-2 px-4 pb-4">
-            <Button variant="ghost" size="sm" className="flex-1 gap-2">
-              <Settings className="w-4 h-4" />
-              Profile
+            <Button variant="ghost" size="sm" className="flex-1 gap-2" asChild>
+              <Link to={profilePath}>
+                <Settings className="w-4 h-4" />
+                Profile
+              </Link>
             </Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex-1 gap-2 text-red-600 hover:text-red-700 hover:bg-red-50">
               <LogOut className="w-4 h-4" />
@@ -110,10 +121,9 @@ export function Navbar() {
             {isAuthenticated ? (
               // Authenticated user navigation
               [
-                { href: "/", label: "Home" },
-                { href: "/dashboard", label: "Dashboard" },
-                { href: "/doctors", label: "Find Doctors" },
-                { href: "/my-appointments", label: "My Appointments" },
+                { href: "/patient/dashboard", label: "Dashboard" },
+                { href: "/patient/doctors", label: "Find Doctors" },
+                { href: "/patient/my-appointments", label: "My Appointments" },
               ].map((link) => (
                 <Link
                   key={link.href}
@@ -128,8 +138,8 @@ export function Navbar() {
               // Public navigation
               [
                 { href: "/", label: "Home" },
-                { href: "/patient-portal", label: "Patient Portal" },
-                { href: "/doctors", label: "Find Doctors" },
+                { href: "/patient/dashboard", label: "Patient Portal" },
+                { href: "/patient/doctors", label: "Find Doctors" },
                 { href: "/demo", label: "Demo" },
               ].map((link) => (
                 <Link
@@ -254,10 +264,9 @@ export function Navbar() {
               {isAuthenticated ? (
                 // Authenticated user navigation
                 [
-                  { href: "/", label: "Home" },
-                  { href: "/dashboard", label: "Dashboard" },
-                  { href: "/doctors", label: "Find Doctors" },
-                  { href: "/my-appointments", label: "My Appointments" },
+                  { href: "/patient/dashboard", label: "Dashboard" },
+                  { href: "/patient/doctors", label: "Find Doctors" },
+                  { href: "/patient/my-appointments", label: "My Appointments" },
                 ].map((link) => (
                   <Link
                     key={link.href}
@@ -272,8 +281,8 @@ export function Navbar() {
                 // Public navigation
                 [
                   { href: "/", label: "Home" },
-                  { href: "/patient-portal", label: "Patient Portal" },
-                  { href: "/doctors", label: "Find Doctors" },
+                  { href: "/patient/dashboard", label: "Patient Portal" },
+                  { href: "/patient/doctors", label: "Find Doctors" },
                   { href: "/demo", label: "🎨 Demo" },
                 ].map((link) => (
                   <Link

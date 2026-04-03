@@ -25,7 +25,7 @@ export default function UnifiedDoctorNavbar({ activeTab, setActiveTab }: Unified
 
   const handleSignOut = () => {
     logout()
-    navigate('/login')
+    navigate('/')
   }
 
   const tabs = [
@@ -38,7 +38,7 @@ export default function UnifiedDoctorNavbar({ activeTab, setActiveTab }: Unified
 
   const handleTabClick = (tabId: typeof activeTab) => {
     setActiveTab(tabId)
-    navigate({ hash: tabId })
+    navigate(`/doctor/${tabId}`)
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -50,7 +50,7 @@ export default function UnifiedDoctorNavbar({ activeTab, setActiveTab }: Unified
           {/* Single Row */}
           <div className="flex items-center justify-between h-16">
             {/* Left: Logo Section */}
-            <Link to="/doctor-dashboard" className="flex items-center gap-2.5 group flex-shrink-0">
+            <Link to="/doctor/dashboard" className="flex items-center gap-2.5 group flex-shrink-0">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center text-blue-nav group-hover:text-blue-nav-light transition-all duration-300 ease-out transform group-hover:scale-105 group-hover:shadow-glow-blue">
                 <CareSOULLogo />
               </div>
@@ -117,10 +117,13 @@ export default function UnifiedDoctorNavbar({ activeTab, setActiveTab }: Unified
                   </svg>
                 )}
               </button>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-secondary/50">
+              <Link
+                to="/doctor/profile"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-secondary/50 hover:bg-surface-secondary/70 transition-all duration-200"
+              >
                 <User className="w-4 h-4 text-foreground/70" />
                 <span className="text-sm font-medium text-foreground">{user?.name || "Doctor"}</span>
-              </div>
+              </Link>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -173,10 +176,14 @@ export default function UnifiedDoctorNavbar({ activeTab, setActiveTab }: Unified
               <div className="border-t border-border/50" />
 
               {/* User Info and Sign Out */}
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-secondary/50">
+              <Link
+                to="/doctor/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-secondary/50 hover:bg-surface-secondary/70 transition-all duration-200"
+              >
                 <User className="w-4 h-4 text-foreground/70" />
                 <span className="text-sm font-medium text-foreground">{user?.name || "Doctor"}</span>
-              </div>
+              </Link>
               <Button 
                 variant="ghost" 
                 size="sm" 

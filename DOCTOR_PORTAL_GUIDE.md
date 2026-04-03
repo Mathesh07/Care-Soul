@@ -270,7 +270,7 @@ GET    /dashboard/stats                          - Get dashboard statistics
 ## 📱 Frontend Routes
 
 ```
-/doctor-dashboard                  - Main doctor dashboard
+/doctor/dashboard                  - Main doctor dashboard
 /doctor-portal                       - Doctor/patient listing (public)
 ```
 
@@ -283,7 +283,7 @@ GET    /dashboard/stats                          - Get dashboard statistics
    - Role must be set to 'doctor' in database
 
 2. **Navigate to Dashboard**:
-   - URL: `/doctor-dashboard`
+  - URL: `/doctor/dashboard`
    - Or use navigation menu after login
 
 3. **View Different Sections**:

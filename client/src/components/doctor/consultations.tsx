@@ -149,10 +149,10 @@ export default function Consultations() {
                       {consultation.status}
                     </span>
                     {consultation.appointmentId && consultation.status === "Scheduled" && (
-                      <Button size="sm" onClick={() => navigate(`/consultation/${consultation.appointmentId}`)}>Start Call</Button>
+                      <Button size="sm" onClick={() => navigate(`/doctor/consultation/${consultation.appointmentId}`)}>Start Call</Button>
                     )}
                     {consultation.appointmentId && consultation.status === "In Progress" && (
-                      <Button size="sm" variant="outline" onClick={() => navigate(`/consultation/${consultation.appointmentId}`)}>Join Call</Button>
+                      <Button size="sm" variant="outline" onClick={() => navigate(`/doctor/consultation/${consultation.appointmentId}`)}>Join Call</Button>
                     )}
                     {consultation.status === "Active" && (
                       <Button size="sm" className="bg-red-600 hover:bg-red-700">Emergency</Button>

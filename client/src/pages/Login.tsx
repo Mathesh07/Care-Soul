@@ -60,9 +60,9 @@ export default function Login() {
       if (response.token && response.user) {
         login(response.token, response.user)
         // Redirect based on user role
-        const redirectPath = response.user.role === 'doctor' ? '/doctor-dashboard' : 
-                            response.user.role === 'admin' ? '/admin' : 
-                            '/patient-portal'
+        const redirectPath = response.user.role === 'doctor' ? '/doctor/dashboard' : 
+          response.user.role === 'admin' ? '/admin' : 
+          '/patient/dashboard'
         navigate(redirectPath)
       } else if (response.requiresOtp) {
         // OTP required
@@ -105,9 +105,9 @@ export default function Login() {
       if (response.token && response.user) {
         login(response.token, response.user)
         // Redirect based on user role
-        const redirectPath = response.user.role === 'doctor' ? '/doctor-dashboard' : 
-                            response.user.role === 'admin' ? '/admin' : 
-                            '/patient-portal'
+        const redirectPath = response.user.role === 'doctor' ? '/doctor/dashboard' : 
+          response.user.role === 'admin' ? '/admin' : 
+          '/patient/dashboard'
         navigate(redirectPath)
       } else {
         setError(response.message || "OTP verification failed")

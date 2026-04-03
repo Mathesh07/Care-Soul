@@ -25,7 +25,7 @@ export default function PatientNavbar({ activeTab, setActiveTab }: PatientNavbar
 
   const handleSignOut = () => {
     logout()
-    navigate('/login')
+    navigate('/')
   }
 
   const tabs = [
@@ -53,7 +53,7 @@ export default function PatientNavbar({ activeTab, setActiveTab }: PatientNavbar
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-7">
               <Link
-                to="/patient-portal"
+                to="/patient/dashboard"
                 className="text-foreground/70 hover:text-blue-nav transition-all duration-300 ease-out text-sm font-medium relative group py-1"
               >
                 Dashboard
@@ -63,10 +63,13 @@ export default function PatientNavbar({ activeTab, setActiveTab }: PatientNavbar
 
             <div className="hidden md:flex items-center gap-2">
               <NotificationCenter />
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-secondary/50">
+              <Link
+                to="/patient/profile"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-secondary/50 hover:bg-surface-secondary/70 transition-all duration-200"
+              >
                 <User className="w-4 h-4 text-foreground/70" />
                 <span className="text-sm font-medium text-foreground">{user?.name || "Patient"}</span>
-              </div>
+              </Link>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -94,10 +97,14 @@ export default function PatientNavbar({ activeTab, setActiveTab }: PatientNavbar
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border">
             <div className="px-4 py-3 space-y-3">
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-secondary/50">
+              <Link
+                to="/patient/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-secondary/50 hover:bg-surface-secondary/70 transition-all duration-200"
+              >
                 <User className="w-4 h-4 text-foreground/70" />
                 <span className="text-sm font-medium text-foreground">{user?.name || "Patient"}</span>
-              </div>
+              </Link>
               <Button 
                 variant="ghost" 
                 size="sm" 

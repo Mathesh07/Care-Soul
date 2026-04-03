@@ -162,7 +162,7 @@ export default function MyAppointments() {
           <div className="rounded-2xl border border-border/60 bg-card p-8 text-center shadow-premium-sm">
             <p className="mb-4 text-lg font-medium text-foreground">No appointments yet</p>
             <Link
-              to="/doctors"
+              to="/patient/doctors"
               className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               Find Doctors

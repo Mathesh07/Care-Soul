@@ -85,6 +85,17 @@ export const verifyDoctor = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Doctor not found' });
         }
 
+        if (doctor.userId) {
+            await User.findByIdAndUpdate(
+                doctor.userId,
+                {
+                    isDocterVerifiedByAdmin: true,
+                    doctorVerifiedByAdminDate: new Date(),
+                    accountStatus: "active",
+                }
+            );
+        }
+
         res.status(200).json({
             success: true,
             data: doctor,
@@ -178,6 +189,27 @@ export const verifyDoctorApplication = async (req, res) => {
         }
 
         await doctor.save();
+
+        const experienceLabel = typeof doctor.yearsOfExperience === 'number'
+            ? `${doctor.yearsOfExperience} years`
+            : '';
+
+        const location = doctor.address || 'Unknown';
+
+        await Doctor.findOneAndUpdate(
+            { userId: doctor._id },
+            {
+                userId: doctor._id,
+                name: doctor.name,
+                specialization: doctor.specialization || '',
+                location,
+                email: doctor.email,
+                phone: doctor.phone || '',
+                experience: experienceLabel,
+                isVerified: true,
+            },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
 
         // Send approval email
         const nodemailer = require("nodemailer");
