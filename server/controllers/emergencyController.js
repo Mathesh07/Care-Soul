@@ -1,12 +1,22 @@
 import Emergency from "../models/Emergency.js";
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
+import { sendEmergencyEmail } from "../services/emailService.js";
 
 
 export const raiseEmergency = async (req, res) => {
     try {
         const patientId = req.user.id;
         const { location, latitude, longitude, description } = req.body;
+
+        // Get patient details including emergency email
+        const patient = await User.findById(patientId);
+        if (!patient) {
+            return res.status(404).json({
+                success: false,
+                message: 'Patient not found'
+            });
+        }
 
         const emergency = new Emergency({
             patientId,
@@ -33,10 +43,26 @@ export const raiseEmergency = async (req, res) => {
 
         await Promise.all(notificationPromises);
 
+        // Send email to emergency contact if configured
+        let emailSent = false;
+        if (patient.emergencyEmail) {
+            const emailResult = await sendEmergencyEmail(
+                patient.emergencyEmail,
+                patient.name,
+                location,
+                description,
+                emergency.createdAt
+            );
+            emailSent = emailResult.success;
+        }
+
         res.status(201).json({
             success: true,
             data: emergency,
-            message: 'Emergency alert raised. Help is on the way.'
+            emailSent,
+            message: emailSent 
+                ? 'Emergency alert raised. Help is on the way. Emergency contact notified.'
+                : 'Emergency alert raised. Help is on the way.'
         });
     } catch (error) {
         res.status(500).json({

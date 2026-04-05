@@ -7,6 +7,7 @@ import { appointmentService } from '../services/appointmentService';
 import { Navbar } from '../components/ui/navbar';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import { HealthTipWidget } from '../components/patient/HealthTipWidget';
 
 interface UserProfile {
   _id: string;
@@ -119,10 +120,10 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
             {/* Stats Cards */}
             <Card className="lg:col-span-1 border-border/60 shadow-premium-sm hover:shadow-premium-md transition-all duration-300">
-              <CardContent className="pt-6">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground/60">Total Appointments</p>
@@ -136,7 +137,7 @@ const Dashboard = () => {
             </Card>
 
             <Card className="lg:col-span-1 border-border/60 shadow-premium-sm hover:shadow-premium-md transition-all duration-300">
-              <CardContent className="pt-6">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground/60">Upcoming</p>
@@ -147,13 +148,10 @@ const Dashboard = () => {
                   </div>
                 </div>
               </CardContent>
-              <div>
-
-              </div>
             </Card>
 
             <Card className="lg:col-span-1 border-border/60 shadow-premium-sm hover:shadow-premium-md transition-all duration-300">
-              <CardContent className="pt-6">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground/60">Account Status</p>
@@ -172,16 +170,16 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Recent Appointments Section */}
             <div className="lg:col-span-2">
-              <Card className="border-border/60 shadow-premium-sm">
-                <CardHeader>
+              <Card className="border-border/60 shadow-premium-sm h-full">
+                <CardHeader className="p-6">
                   <CardTitle>Recent Appointments</CardTitle>
                   <CardDescription>Your last 3 appointments</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-6 pb-6">
                   {appointments.length > 0 ? (
                     <ul className="space-y-4">
                       {appointments.map(apt => (
-                        <li key={apt._id} className="flex items-center justify-between p-4 bg-foreground/5 hover:bg-foreground/10 rounded-xl transition-colors duration-200">
+                        <li key={apt._id} className="flex items-center justify-between p-5 bg-foreground/5 hover:bg-foreground/10 rounded-xl transition-colors duration-200">
                           <div className="flex items-center gap-4">
                             <div className="p-2 bg-primary/10 rounded-xl">
                               <Stethoscope className="h-5 w-5 text-primary" />
@@ -202,12 +200,19 @@ const Dashboard = () => {
                     <p className="text-center text-foreground/60 py-8">No appointments yet.</p>
                   )}
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="p-6 pt-0">
                   <Button variant="outline" className="w-full" onClick={() => navigate('/patient/my-appointments')}>
                     View All Appointments
                   </Button>
                 </CardFooter>
               </Card>
+            </div>
+
+            {/* Health Tip Section */}
+            <div className="lg:col-span-1">
+              <div className="h-full">
+                <HealthTipWidget />
+              </div>
             </div>
           </div>
         </div>

@@ -10,6 +10,7 @@ const EmergencyPage = () => {
     const [coords, setCoords] = useState<{ lat: number, lng: number } | null>(null);
     const [description, setDescription] = useState('');
     const [error, setError] = useState('');
+    const [emailSent, setEmailSent] = useState(false);
 
     // Get user's GPS location
     const getLocation = (): Promise<GeolocationPosition> => {
@@ -55,6 +56,7 @@ const EmergencyPage = () => {
             });
 
             if (response.success) {
+                setEmailSent(response.emailSent || false);
                 setStatus('sent');
             }
         } catch (err: any) {
@@ -101,6 +103,16 @@ const EmergencyPage = () => {
                         <p className="text-green-700/90 dark:text-green-300 mt-2">
                             Your emergency has been reported. Help is on the way.
                         </p>
+                        {emailSent && (
+                            <p className="text-blue-600 dark:text-blue-400 mt-2 text-sm">
+                                📧 Emergency contact has been notified via email.
+                            </p>
+                        )}
+                        {!emailSent && (
+                            <p className="text-amber-600 dark:text-amber-400 mt-2 text-sm">
+                                💡 Tip: Add an emergency contact email in your profile to notify them automatically.
+                            </p>
+                        )}
                         {coords && (
                             <div className="mt-4 flex items-center justify-center gap-2 text-green-700 dark:text-green-300">
                                 <MapPin className="h-4 w-4" />
@@ -108,7 +120,7 @@ const EmergencyPage = () => {
                             </div>
                         )}
                         <button
-                            onClick={() => setStatus('idle')}
+                            onClick={() => { setStatus('idle'); setEmailSent(false); }}
                             className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
                         >
                             Send Another Alert

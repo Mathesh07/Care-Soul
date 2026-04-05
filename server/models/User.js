@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    emergencyEmail: {
+      type: String,
+      default: '',
+      trim: true,
+      lowercase: true,
+    },
     role: {
       type: String,
       enum: ['patient', 'doctor', 'admin'],
